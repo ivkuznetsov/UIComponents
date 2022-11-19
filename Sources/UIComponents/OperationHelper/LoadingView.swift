@@ -55,6 +55,8 @@ open class LoadingView : UIView {
             UIView.animate(withDuration: 0.2, animations: { [weak self] in
                 self?.alpha = 1
             })
+        } else {
+            alpha = 1
         }
     }
     

@@ -74,22 +74,24 @@ open class LoadingBarView: UIView {
         
         frame = CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 3)
         view.addSubview(self)
-        self.translatesAutoresizingMaskIntoConstraints = false
-        view.leftAnchor.constraint(equalTo: self.leftAnchor).isActive = true
-        view.rightAnchor.constraint(equalTo: self.rightAnchor).isActive = true
-        self.heightAnchor.constraint(equalToConstant: 3).isActive = true
+        translatesAutoresizingMaskIntoConstraints = false
+        view.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
+        view.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
+        heightAnchor.constraint(equalToConstant: 3).isActive = true
         
         if let next = view.next as? UIViewController {
-            self.topAnchor.constraint(equalTo: next.view.safeAreaLayoutGuide.topAnchor).isActive = true
+            topAnchor.constraint(equalTo: next.view.safeAreaLayoutGuide.topAnchor).isActive = true
         } else {
-            self.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+            topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         }
         
         if animated {
-            self.alpha = 0
+            alpha = 0
             UIView.animate(withDuration: 0.15, animations: {
                 self.alpha = 1.0
             })
+        } else {
+            alpha = 1
         }
     }
     
