@@ -55,7 +55,7 @@ open class PagingCollection: Collection {
                         }
                         
                         if wSelf.yConstraint == nil {
-                            wSelf.yConstraint = wSelf.collection.topAnchor.constraint(equalTo: footerView.topAnchor)
+                            wSelf.yConstraint = footerView.topAnchor.constraint(equalTo:  wSelf.collection.topAnchor)
                             wSelf.yConstraint?.isActive = true
                         }
                         
@@ -63,7 +63,6 @@ open class PagingCollection: Collection {
                             wSelf.xConstraint = wSelf.collection.leftAnchor.constraint(equalTo: footerView.leftAnchor)
                             wSelf.xConstraint?.isActive = true
                         }
-                        wSelf.collection.addConstraint(wSelf.xConstraint!)
                         
                         insets.bottom = footerView.frame.size.height
                     } else {
