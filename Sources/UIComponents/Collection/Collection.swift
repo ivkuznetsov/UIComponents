@@ -323,7 +323,7 @@ extension Collection: UICollectionViewDelegateFlowLayout {
             
             return CGSize(width: floor(frame.size.width), height: ceil(height))
         } else {
-            guard let size = delegate?.cellSizeFor(object: object, collection: self) ?? Self.defaultDelegate!.cellSizeFor(object: object, collection: self) else {
+            guard let size = delegate?.cellSizeFor(object: object, collection: self) ?? Self.defaultDelegate?.cellSizeFor(object: object, collection: self) else {
                 fatalError("Please specify cell size")
             }
             return size
