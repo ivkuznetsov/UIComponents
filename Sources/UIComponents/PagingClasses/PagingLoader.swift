@@ -31,10 +31,6 @@ public extension PagingLoaderDelegate {
     func pagingLoader() -> PagingLoader.Type { PagingLoader.self }
     
     func performOnRefresh() { }
-    
-    func reloadView(_ animated: Bool) { }
-    
-    func load(offset: Any?, completion: @escaping ([AnyHashable], Error?, _ offset: Any?)->()) { }
 }
 
 public protocol PagingCachable: AnyObject {
