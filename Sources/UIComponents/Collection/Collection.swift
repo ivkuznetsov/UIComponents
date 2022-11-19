@@ -122,7 +122,6 @@ open class Collection: StaticSetupObject {
     
     private static func createCollectionView() -> CollectionView {
         let layout = CollectionViewLeftAlignedLayout()
-        layout.horizontalAlignment = .left
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
