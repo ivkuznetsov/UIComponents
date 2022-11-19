@@ -74,7 +74,7 @@ public class InputHelper: NSObject, UIGestureRecognizerDelegate {
         return tapGR
     }()
     
-    public var inputs: [[Input]] {
+    public var inputs: [[Input]] = [] {
         didSet {
             oldValue.forEach {
                 $0.forEach { unselect(input: $0) }
@@ -200,6 +200,7 @@ public class InputHelper: NSObject, UIGestureRecognizerDelegate {
                 }
             }
         }
+        return nil
     }
     
     @objc private func didChangeTextView(_ notification: Notification) {
@@ -285,6 +286,7 @@ public class InputHelper: NSObject, UIGestureRecognizerDelegate {
         if let input = firstFailedInput {
             scrollTo(input: input)
         }
+        return result
     }
     
     public func validateInputs() -> Bool {

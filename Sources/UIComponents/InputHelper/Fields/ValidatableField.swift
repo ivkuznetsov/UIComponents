@@ -5,6 +5,7 @@
 #if os(iOS)
 
 import UIKit
+import CommonUtils
 
 open class ValidatableField: UITextField, ValidatableInput {
 
@@ -29,13 +30,9 @@ open class ValidatableField: UITextField, ValidatableInput {
     
     public var validator: ((ValidatableField)->Result)?
     
-    public var validationFailed: Bool = false {
-        didSet {
-            if oldValue != validationFailed {
-                failedView?.backgroundColor = validationFailed ? UIColor(red: 1, green: 0, blue: 0, alpha: 0.1) : oldColor
-                failedView?.addFadeTransition()
-            }
-        }
+    public func set(failedValidation: Bool) {
+        failedView?.backgroundColor = failedValidation ? UIColor(red: 1, green: 0, blue: 0, alpha: 0.1) : oldColor
+        failedView?.addFadeTransition()
     }
     
     public override init(frame: CGRect) {
