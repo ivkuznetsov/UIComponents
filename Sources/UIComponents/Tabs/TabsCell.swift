@@ -6,7 +6,7 @@
 
 import UIKit
 
-@objc open class TabsCell: UIView {
+open class TabsCell: UIView {
     
     public enum Layout {
         case fillWidth

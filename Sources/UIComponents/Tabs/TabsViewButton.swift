@@ -6,7 +6,6 @@
 
 import UIKit
 
-@objcMembers
 open class TabsViewButton: UIButton {
     
     open var badgeColor: UIColor = UIColor.red {

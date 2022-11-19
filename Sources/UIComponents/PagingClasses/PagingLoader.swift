@@ -22,7 +22,7 @@ public protocol PagingLoaderDelegate: AnyObject {
     func load(offset: Any?, completion: @escaping ([AnyHashable], Error?, _ offset: Any?)->())
 }
 
-extension PagingLoaderDelegate {
+public extension PagingLoaderDelegate {
     
     func hasRefreshControl() -> Bool { true }
     

@@ -24,7 +24,7 @@ public protocol CollectionDelegate: UICollectionViewDelegate {
     func proposeMoving(object: AnyHashable, toIndexPath: IndexPath) -> IndexPath
 }
 
-extension CollectionDelegate {
+public extension CollectionDelegate {
     
     func shouldShowNoData(_ objects: [AnyHashable], collection: Collection) -> Bool { objects.isEmpty }
     

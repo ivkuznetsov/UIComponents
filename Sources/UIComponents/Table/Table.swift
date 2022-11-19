@@ -26,7 +26,7 @@ public protocol TableDelegate: UITableViewDelegate {
     func cellEditor(object: AnyHashable, table: Table) -> Table.Editor?
 }
 
-extension TableDelegate {
+public extension TableDelegate {
     
     func animationForAdding(table: Table) -> UITableView.RowAnimation? { nil }
     
