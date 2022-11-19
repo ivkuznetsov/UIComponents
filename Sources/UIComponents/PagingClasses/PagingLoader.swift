@@ -126,7 +126,7 @@ open class PagingLoader: StaticSetupObject {
         currentOperationId = operationId
         
         delegate?.load(offset: offset, completion: { [weak self] (objects, error, newOffset) in
-            guard let wSelf = self, wSelf.delegate != nil, wSelf.currentOperationId != operationId else { return }
+            guard let wSelf = self, wSelf.delegate != nil, wSelf.currentOperationId == operationId else { return }
             
             wSelf.loading = false
             if let error = error {
