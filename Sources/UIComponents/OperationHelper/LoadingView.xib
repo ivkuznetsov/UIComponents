@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="UbJ-ds-ayG" customClass="LoadingView" customModule="UIComponents">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="xdv-Zc-PYh">
+                    <rect key="frame" x="169" y="315" width="37" height="37"/>
+                    <color key="color" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                </activityIndicatorView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fnj-Sk-x50" customClass="CircularProgressView" customModule="UIComponents">
+                    <rect key="frame" x="157.5" y="303.5" width="60" height="60"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <color key="tintColor" white="0.0" alpha="0.49799042630057805" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="aFf-L0-e5c"/>
+                        <constraint firstAttribute="height" constant="60" id="mFC-wB-p1N"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="lineWidth">
+                            <real key="value" value="2"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
+                            <color key="value" white="0.0" alpha="0.10138186416184972" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="0.70079931358381498" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="xdv-Zc-PYh" firstAttribute="centerY" secondItem="UbJ-ds-ayG" secondAttribute="centerY" id="66p-Nz-Tuk"/>
+                <constraint firstItem="xdv-Zc-PYh" firstAttribute="centerX" secondItem="UbJ-ds-ayG" secondAttribute="centerX" id="YrZ-gG-A5S"/>
+                <constraint firstItem="Fnj-Sk-x50" firstAttribute="centerY" secondItem="UbJ-ds-ayG" secondAttribute="centerY" id="Zuc-fy-2B8"/>
+                <constraint firstItem="Fnj-Sk-x50" firstAttribute="centerX" secondItem="UbJ-ds-ayG" secondAttribute="centerX" id="d3x-n9-7aO"/>
+            </constraints>
+            <connections>
+                <outlet property="indicator" destination="xdv-Zc-PYh" id="VUA-LM-PY1"/>
+                <outlet property="progressIndicator" destination="Fnj-Sk-x50" id="M8D-YW-fYJ"/>
+            </connections>
+            <point key="canvasLocation" x="130" y="153"/>
+        </view>
+    </objects>
+</document>

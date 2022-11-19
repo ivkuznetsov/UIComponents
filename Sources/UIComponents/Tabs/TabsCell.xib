@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="cXP-bN-KMi" customClass="TabsCell" customModule="UIComponents">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="76"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" contentInsetAdjustmentBehavior="never" translatesAutoresizingMaskIntoConstraints="NO" id="2EU-pX-Je1">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="76"/>
+                </scrollView>
+                <view contentMode="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="Qap-5Z-Qlv" customClass="SeparatorView" customModule="UIComponents">
+                    <rect key="frame" x="-15" y="75" width="350" height="1"/>
+                    <color key="backgroundColor" white="1" alpha="0.10117737676056338" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="DyZ-Uz-C3f"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="Qap-5Z-Qlv" secondAttribute="trailing" constant="-15" id="54L-gR-CXQ"/>
+                <constraint firstItem="2EU-pX-Je1" firstAttribute="leading" secondItem="cXP-bN-KMi" secondAttribute="leading" id="FjS-C9-oKG"/>
+                <constraint firstAttribute="bottom" secondItem="Qap-5Z-Qlv" secondAttribute="bottom" id="HcO-Kj-Pti"/>
+                <constraint firstAttribute="bottom" secondItem="2EU-pX-Je1" secondAttribute="bottom" id="I2G-WO-n3J"/>
+                <constraint firstAttribute="trailing" secondItem="2EU-pX-Je1" secondAttribute="trailing" id="aR6-Gi-4S1"/>
+                <constraint firstItem="Qap-5Z-Qlv" firstAttribute="leading" secondItem="cXP-bN-KMi" secondAttribute="leading" constant="-15" id="jKd-ZB-MKx"/>
+                <constraint firstItem="2EU-pX-Je1" firstAttribute="top" secondItem="cXP-bN-KMi" secondAttribute="top" id="rkm-yA-dkw"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="scrollView" destination="2EU-pX-Je1" id="UYg-Y3-Gsl"/>
+            </connections>
+            <point key="canvasLocation" x="20.800000000000001" y="-143.02848575712144"/>
+        </view>
+    </objects>
+</document>

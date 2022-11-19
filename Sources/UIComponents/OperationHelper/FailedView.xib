@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="vqv-Pa-eRN" customClass="FailedView" customModule="UIComponents">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="250" translatesAutoresizingMaskIntoConstraints="NO" id="NrN-6g-hon">
+                    <rect key="frame" x="170.5" y="257" width="34.5" height="19.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fKg-xg-Px5" customClass="BorderedButton" customModule="UIComponents">
+                    <rect key="frame" x="153" y="311.5" width="69" height="35"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="35" id="06p-M0-nAS"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <inset key="contentEdgeInsets" minX="15" minY="0.0" maxX="15" maxY="0.0"/>
+                    <state key="normal" title="Retry">
+                        <color key="titleColor" red="0.0" green="0.4777274728" blue="0.98838847880000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </state>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                            <color key="value" red="0.0" green="0.4777274728" blue="0.98838847880000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                            <real key="value" value="1"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                            <real key="value" value="4"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="retryAction:" destination="vqv-Pa-eRN" eventType="touchUpInside" id="aGS-nt-E4N"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="fKg-xg-Px5" firstAttribute="centerX" secondItem="vqv-Pa-eRN" secondAttribute="centerX" id="4cE-nz-sll"/>
+                <constraint firstItem="NrN-6g-hon" firstAttribute="centerX" secondItem="vqv-Pa-eRN" secondAttribute="centerX" id="Lga-ue-nFa"/>
+                <constraint firstItem="NrN-6g-hon" firstAttribute="centerY" secondItem="vqv-Pa-eRN" secondAttribute="centerY" multiplier="0.8" id="XL4-6r-xLh"/>
+                <constraint firstItem="fKg-xg-Px5" firstAttribute="top" secondItem="NrN-6g-hon" secondAttribute="bottom" constant="35" id="ils-be-2NO"/>
+            </constraints>
+            <connections>
+                <outlet property="retryButton" destination="fKg-xg-Px5" id="Igq-o7-0mN"/>
+                <outlet property="textLabel" destination="NrN-6g-hon" id="hsj-bT-ocQ"/>
+            </connections>
+            <point key="canvasLocation" x="130" y="153"/>
+        </view>
+    </objects>
+</document>
