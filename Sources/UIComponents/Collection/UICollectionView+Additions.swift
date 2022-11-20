@@ -20,7 +20,7 @@ extension UICollectionView {
         }
     }
     
-    func reload(animated: Bool, oldData: [AnyHashable], newData: [AnyHashable], completion: (()->())?, updateObjects: (()->())?) -> [IndexPath] {
+    func reload(animated: Bool, oldData: [AnyHashable], newData: [AnyHashable], diffable: Bool, completion: (()->())?, updateObjects: (()->())?) -> [IndexPath] {
         
         var applicationPresented = true
         var application: UIApplication?
@@ -30,7 +30,7 @@ extension UICollectionView {
             applicationPresented = application!.applicationState == .active
         }
         
-        if !animated || oldData.isEmpty || window == nil || !applicationPresented {
+        if (!animated && !diffable) || oldData.isEmpty || window == nil || !applicationPresented {
             updateObjects?()
             reloadData()
             layoutIfNeeded()
@@ -76,37 +76,45 @@ extension UICollectionView {
             
             application?.value(forKey: "beginIgnoringInteractionEvents")
             
-            performBatchUpdates {
-                updateObjects?()
-                
-                deleteItems(at: toDelete)
-                insertItems(at: toAdd)
-                
-                itemsToMove.forEach { moveItem(at: $0, to: $1) }
-                
-                let visibleItems = indexPathsForVisibleItems
-                
-                if visibleItems.count > 0 {
-                    let toAddSet = Set(toAdd)
+            let performChanges = {
+                self.performBatchUpdates {
+                    updateObjects?()
                     
-                    visibleItems.forEach {
-                        if let cell = cellForItem(at: $0) {
-                            if toAddSet.contains($0) {
-                                cell.superview?.sendSubviewToBack(cell)
-                            } else {
-                                cell.superview?.bringSubviewToFront(cell)
+                    self.deleteItems(at: toDelete)
+                    self.insertItems(at: toAdd)
+                    
+                    itemsToMove.forEach { self.moveItem(at: $0, to: $1) }
+                    
+                    let visibleItems = self.indexPathsForVisibleItems
+                    
+                    if visibleItems.count > 0 {
+                        let toAddSet = Set(toAdd)
+                        
+                        visibleItems.forEach {
+                            if let cell = self.cellForItem(at: $0) {
+                                if toAddSet.contains($0) {
+                                    cell.superview?.sendSubviewToBack(cell)
+                                } else {
+                                    cell.superview?.bringSubviewToFront(cell)
+                                }
                             }
                         }
                     }
+                    
+                } completion: { _ in
+                    application?.value(forKey: "endIgnoringInteractionEvents")
+                    completion?()
                 }
-                
-            } completion: { _ in
-                application?.value(forKey: "endIgnoringInteractionEvents")
-                completion?()
+            }
+            
+            if animated {
+                performChanges()
+            } else {
+                UIView.performWithoutAnimation(performChanges)
             }
 
             if collectionViewLayout.collectionViewContentSize.height < bounds.size.height && newData.count > 0 {
-                UIView.animate(withDuration: 0.3) { [weak self] in
+                UIView.animate(withDuration: animated ? 0.3 : 0) { [weak self] in
                     self?.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
                 }
             }

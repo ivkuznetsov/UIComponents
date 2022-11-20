@@ -139,7 +139,7 @@ open class Collection: StaticSetupObject {
     
     private var deferredCompletion: (()->())?
     
-    open func set(objects: [AnyHashable], animated: Bool, completion: (()->())? = nil) {
+    open func set(objects: [AnyHashable], animated: Bool, diffable: Bool = false, completion: (()->())? = nil) {
         let resultCompletion = { [weak self] in
             let deferred = self?.deferredCompletion
             self?.deferredCompletion = nil
@@ -153,11 +153,11 @@ open class Collection: StaticSetupObject {
         } else {
             updatingDatasource = true
             
-            internalSet(objects, animated: animated) { [weak self] in
+            internalSet(objects, animated: animated, diffable: diffable) { [weak self] in
                 guard let wSelf = self else { return }
                 
                 if let objects = wSelf.lazyObjects {
-                    wSelf.internalSet(objects, animated: false, completion: resultCompletion)
+                    wSelf.internalSet(objects, animated: false, diffable: diffable, completion: resultCompletion)
                     wSelf.lazyObjects = nil
                 } else {
                     resultCompletion()
@@ -167,10 +167,10 @@ open class Collection: StaticSetupObject {
         }
     }
     
-    private func internalSet(_ objects: [AnyHashable], animated: Bool, completion: (()->())?) {
+    private func internalSet(_ objects: [AnyHashable], animated: Bool, diffable: Bool, completion: (()->())?) {
         guard let delegate = delegate else { return }
         
-        let toReload = collection.reload(animated: !deferredUpdate && animated, oldData: self.objects, newData: objects, completion: completion) { [weak self] in
+        let toReload = collection.reload(animated: !deferredUpdate && animated, oldData: self.objects, newData: objects, diffable: diffable, completion: completion) { [weak self] in
             self?.objects = objects
         }
         deferredUpdate = false
