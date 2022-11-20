@@ -12,7 +12,9 @@ public extension UIViewController {
         var topVC: UIViewController?
         
         if let shared = UIApplication.value(forKey: "sharedApplication") as? UIApplication {
-            topVC = shared.keyWindow?.rootViewController ?? shared.delegate?.window??.rootViewController
+            let window = shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).flatMap({ $0.windows }).first(where: { $0.isKeyWindow })
+            
+            topVC = window?.rootViewController ?? shared.delegate?.window??.rootViewController
         }
         while topVC?.presentedViewController != nil {
             topVC = topVC?.presentedViewController
