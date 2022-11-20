@@ -36,9 +36,9 @@ public extension TableDelegate {
     
     func createCell(object: AnyHashable, table: Table) -> Table.Cell? { nil }
     
-    func cellHeight(object: AnyHashable, original: CGFloat, table: Table) -> CGFloat { 0 }
+    func cellHeight(object: AnyHashable, original: CGFloat, table: Table) -> CGFloat { UITableView.automaticDimension }
     
-    func cellEstimatedHeight(object: AnyHashable, original: CGFloat, table: Table) -> CGFloat { 0 }
+    func cellEstimatedHeight(object: AnyHashable, original: CGFloat, table: Table) -> CGFloat { 150 }
     
     func cellEditor(object: AnyHashable, table: Table) -> Table.Editor? { nil }
 }
