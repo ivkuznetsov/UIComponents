@@ -168,13 +168,7 @@ open class PagingLoader: StaticSetupObject {
         }
         
         fetchedItems = array
-        
-        guard let scrollView = scrollView, delegate != nil else { return }
-        
-        let offset = scrollView.contentOffset
         delegate?.reloadView(animated)
-        scrollView.layoutIfNeeded()
-        scrollView.contentOffset = offset
     }
     
     private func refresh(with refreshControl: UIRefreshControl?) {
