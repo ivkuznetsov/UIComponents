@@ -134,6 +134,8 @@ open class Table: StaticSetupObject {
     
     open var noObjectsView: NoObjectsView = NoObjectsView.loadFromNib()
     
+    private var reusingIds = Set<String>()
+    
     weak var delegate: TableDelegate?
     fileprivate var cachedHeights: [NSValue:CGFloat] = [:]
     
@@ -180,7 +182,6 @@ open class Table: StaticSetupObject {
         table.dataSource = self
         table.prefetchDataSource = delegate is TablePrefetch ? self : nil
         table.tableFooterView = UIView()
-        table.register(ContainerTableCell.self, forCellReuseIdentifier: "ContainerTableCell")
     }
     
     public func clearHeightCache(_ object: AnyHashable) {
@@ -336,7 +337,13 @@ extension Table: UITableViewDataSource {
         if let object = object as? UITableViewCell {
             cell = object
         } else if let object = object as? UIView {
-            let tableCell = table.dequeueReusableCell(withIdentifier: "ContainerTableCell") as! ContainerTableCell
+            let id = "\(object.hash)"
+            
+            if !reusingIds.contains(id) {
+                table.register(ContainerTableCell.self, forCellReuseIdentifier: id)
+                reusingIds.insert(id)
+            }
+            let tableCell = table.dequeueReusableCell(withIdentifier: id) as! ContainerTableCell
             tableCell.attach(view: object, type: containerCellAttachType)
             cell = tableCell
         } else {
@@ -344,7 +351,14 @@ extension Table: UITableViewDataSource {
                 fatalError("Please specify cell for \(object)")
             }
             
-            cell = tableView.dequeueReusableCell(withIdentifier: String(describing: createCell.type)) ?? createCell.type.loadFromNib()
+            let id = String(describing: createCell.type)
+            
+            if !reusingIds.contains(id) {
+                table.register(UINib(nibName: id, bundle: Bundle(for: createCell.type)), forCellReuseIdentifier: id)
+                reusingIds.insert(id)
+            }
+            
+            cell = tableView.dequeueReusableCell(withIdentifier: String(describing: createCell.type))!
             createCell.fill?(cell)
             
             if let cell = cell as? ObjectHolder {

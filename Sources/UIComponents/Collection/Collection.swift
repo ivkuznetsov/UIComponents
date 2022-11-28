@@ -51,15 +51,11 @@ open class Collection: StaticSetupObject {
     public struct Cell {
         
         fileprivate let type: UICollectionViewCell.Type
-        fileprivate let fill: ((UICollectionViewCell)->())?
+        fileprivate let fill: (UICollectionViewCell)->()
         
         public init<T: UICollectionViewCell>(_ type: T.Type, _ fill: ((T)->())? = nil) {
             self.type = type
-            if let fill = fill {
-                self.fill = { fill($0 as! T) }
-            } else {
-                self.fill = nil
-            }
+            self.fill = { fill?($0 as! T) }
         }
     }
     
@@ -84,8 +80,8 @@ open class Collection: StaticSetupObject {
         }
     }
     
-    public dynamic var layout: UICollectionViewFlowLayout? {
-        get { collection.collectionViewLayout as? UICollectionViewFlowLayout }
+    public var layout: UICollectionViewFlowLayout? {
+        collection.collectionViewLayout as? UICollectionViewFlowLayout
     }
     
     public var noObjectsView = NoObjectsView.loadFromNib()
@@ -98,24 +94,24 @@ open class Collection: StaticSetupObject {
     open var setupViewContainer: ((ContainerCollectionCell)->())?
     
     public init(collection: CollectionView, delegate: CollectionDelegate) {
+        self.delegate = delegate
         self.collection = collection
         super.init()
-        self.delegate = delegate
         setup()
     }
     
     public init(view: UIView, delegate: CollectionDelegate) {
+        self.delegate = delegate
         collection = Self.createCollectionView()
         super.init()
-        self.delegate = delegate
         view.attach(collection)
         setup()
     }
     
     public init(customAdd: (CollectionView)->(), delegate: CollectionDelegate) {
+        self.delegate = delegate
         collection = Self.createCollectionView()
         super.init()
-        self.delegate = delegate
         customAdd(collection)
         setup()
     }
@@ -125,7 +121,7 @@ open class Collection: StaticSetupObject {
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
-        let collection = CollectionView(frame: CGRect.zero, collectionViewLayout: layout)
+        let collection = CollectionView(frame: .zero, collectionViewLayout: layout)
         collection.backgroundColor = .clear
         collection.alwaysBounceVertical = true
         return collection
@@ -134,7 +130,6 @@ open class Collection: StaticSetupObject {
     func setup() {
         collection.delegate = self
         collection.dataSource = self
-        collection.register(ContainerCollectionCell.self, forCellWithReuseIdentifier: String(describing: ContainerCollectionCell.self))
     }
     
     private var deferredCompletion: (()->())?
@@ -182,7 +177,7 @@ open class Collection: StaticSetupObject {
                     
                     let fillCell = delegate.createCell(object: object, collection: self) ?? Self.defaultDelegate?.createCell(object: object, collection: self)
                     
-                    fillCell?.fill?(cell)
+                    fillCell?.fill(cell)
                 }
             }
         }
@@ -229,7 +224,7 @@ extension Collection: UICollectionViewDataSource {
         let object = objects[indexPath.item]
         
         if let view = object as? UIView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: String(describing: ContainerCollectionCell.self), for: indexPath) as! ContainerCollectionCell
+            let cell = collection.createCell(for: ContainerCollectionCell.self, identifier: "\(view.hash)", source: .code, at: indexPath)
             cell.attach(view: view)
             setupViewContainer?(cell)
             return cell
@@ -239,9 +234,8 @@ extension Collection: UICollectionViewDataSource {
                 fatalError("Please specify cell for \(object)")
             }
             
-            let cell = self.collection.createCell(for: createCell.type, at: indexPath)
-            createCell.fill?(cell)
-            
+            let cell = collection.createCell(for: createCell.type, at: indexPath)
+            createCell.fill(cell)
             return cell
         }
     }

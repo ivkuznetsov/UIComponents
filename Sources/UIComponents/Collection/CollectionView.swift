@@ -21,14 +21,25 @@ open class CollectionView: UICollectionView {
         self.delaysContentTouches = false
     }
     
-    open func createCell<T: UICollectionViewCell>(for type: T.Type, at indexPath: IndexPath) -> T {
-        let identifier = String(describing: type)
+    public enum Source {
+        case nib
+        case code
+    }
+    
+    open func createCell<T: UICollectionViewCell>(for type: T.Type, identifier: String? = nil, source: Source = .nib, at indexPath: IndexPath) -> T {
+        let className = String(describing: type)
+        let id = identifier ?? className
         
-        if !registeredCells.contains(identifier) {
-            register(UINib(nibName: identifier, bundle: Bundle(for: type)), forCellWithReuseIdentifier: identifier)
-            registeredCells.insert(identifier)
+        if !registeredCells.contains(id) {
+            switch source {
+            case .nib:
+                register(UINib(nibName: className, bundle: Bundle(for: type)), forCellWithReuseIdentifier: id)
+            case .code:
+                register(type, forCellWithReuseIdentifier: id)
+            }
+            registeredCells.insert(id)
         }
-        return dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! T
+        return dequeueReusableCell(withReuseIdentifier: id, for: indexPath) as! T
     }
     
     open override func touchesShouldCancel(in view: UIView) -> Bool {
