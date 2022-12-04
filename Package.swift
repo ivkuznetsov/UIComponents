@@ -20,6 +20,11 @@ let package = Package(
     targets: [
         .target(name: "UIComponents",
                 dependencies: ["CommonUtils"],
-                resources: [.copy("Resources")]),
+                resources: [.copy("Resources/AlertBarView.xib"),
+                            .copy("Resources/FailedView.xib"),
+                            .copy("Resources/FooterLoadingView.xib"),
+                            .copy("Resources/LoadingView.xib"),
+                            .copy("Resources/NoObjectsView.xib"),
+                            .copy("Resources/TabsCell.xib")]),
     ]
 )
