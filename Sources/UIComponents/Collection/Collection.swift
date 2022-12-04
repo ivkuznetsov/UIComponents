@@ -134,6 +134,20 @@ open class Collection: StaticSetupObject {
     
     private var deferredCompletion: (()->())?
     
+    public func set(cellsPadding: CGFloat) {
+        layout?.sectionInset = .init(top: cellsPadding, left: cellsPadding, bottom: cellsPadding, right: cellsPadding)
+        layout?.minimumInteritemSpacing = cellsPadding
+        layout?.minimumLineSpacing = cellsPadding
+    }
+    
+    public var availableCellWidth: CGFloat {
+        var width = collection.width
+        if let layout = layout {
+            width -= layout.sectionInset.left + layout.sectionInset.right + collection.safeAreaInsets.left + collection.safeAreaInsets.right
+        }
+        return width
+    }
+    
     open func set(objects: [AnyHashable], animated: Bool, diffable: Bool = false, completion: (()->())? = nil) {
         let resultCompletion = { [weak self] in
             let deferred = self?.deferredCompletion
