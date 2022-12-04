@@ -124,6 +124,7 @@ open class Collection: StaticSetupObject {
         let collection = CollectionView(frame: .zero, collectionViewLayout: layout)
         collection.backgroundColor = .clear
         collection.alwaysBounceVertical = true
+        collection.contentInsetAdjustmentBehavior = .always
         return collection
     }
     
