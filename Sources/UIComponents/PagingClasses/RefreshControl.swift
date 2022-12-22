@@ -2,8 +2,6 @@
 //  RefreshControl.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 class RefreshControl: UIRefreshControl {
@@ -21,5 +19,3 @@ class RefreshControl: UIRefreshControl {
         }
     }
 }
-
-#endif

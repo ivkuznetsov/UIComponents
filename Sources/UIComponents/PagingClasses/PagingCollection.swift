@@ -2,8 +2,6 @@
 //  PagingCollectionHelper.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class PagingCollection: Collection {
@@ -137,5 +135,3 @@ extension PagingCollection {
         delegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
     }
 }
-
-#endif

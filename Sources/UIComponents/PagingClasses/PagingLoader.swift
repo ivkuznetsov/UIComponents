@@ -2,8 +2,6 @@
 //  PagingLoader.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import CommonUtils
 
@@ -304,5 +302,3 @@ open class PagingLoader: StaticSetupObject {
         scrollView?.removeObserver(self, forKeyPath: "contentOffset")
     }
 }
-
-#endif

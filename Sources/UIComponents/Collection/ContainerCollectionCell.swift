@@ -2,8 +2,6 @@
 //  ContainerCollectionCell.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public class ContainerCollectionCell: UICollectionViewCell {
@@ -26,5 +24,3 @@ public class ContainerCollectionCell: UICollectionViewCell {
         return nil
     }
 }
-
-#endif

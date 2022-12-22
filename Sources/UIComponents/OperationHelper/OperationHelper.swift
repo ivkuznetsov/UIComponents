@@ -2,8 +2,6 @@
 //  OperationHelper.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import CommonUtils
 
@@ -194,5 +192,3 @@ open class OperationHelper: StaticSetupObject {
         cancelOperations()
     }
 }
-
-#endif

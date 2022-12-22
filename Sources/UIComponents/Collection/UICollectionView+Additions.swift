@@ -2,8 +2,6 @@
 //  UICollectionView+Additions.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 extension UICollectionView {
@@ -125,5 +123,3 @@ extension UICollectionView {
         return toReload
     }
 }
-
-#endif

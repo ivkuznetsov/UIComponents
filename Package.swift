@@ -5,17 +5,12 @@ import PackageDescription
 
 let package = Package(
     name: "UIComponents",
-    platforms: [
-        .macOS(.v10_13),
-            .iOS(.v13)
-    ],
+    platforms: [.iOS(.v13)],
     products: [
-        .library(name: "UIComponents",
-                 targets: ["UIComponents"])
+        .library(name: "UIComponents", targets: ["UIComponents"])
     ],
     dependencies: [
-        .package(url: "https://github.com/ivkuznetsov/CommonUtils.git",
-                 branch: "main")
+        .package(url: "https://github.com/ivkuznetsov/CommonUtils.git", branch: "main")
     ],
     targets: [
         .target(name: "UIComponents",

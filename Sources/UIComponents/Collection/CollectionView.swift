@@ -2,8 +2,6 @@
 //  CollectionView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class CollectionView: UICollectionView {
@@ -79,5 +77,3 @@ open class CollectionView: UICollectionView {
         return size != oldSize
     }
 }
-
-#endif

@@ -2,8 +2,6 @@
 //  UIViewController+Additions.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public extension UIViewController {
@@ -34,5 +32,3 @@ public extension UIViewController {
         return topViewController
     }
 }
-
-#endif

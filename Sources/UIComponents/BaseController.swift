@@ -2,8 +2,6 @@
 //  BaseController.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class BaseController: UIViewController {
@@ -80,5 +78,3 @@ open class BaseController: UIViewController {
         }
     }
 }
-
-#endif

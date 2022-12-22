@@ -2,8 +2,6 @@
 //  FooterLoadingView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public enum FooterState {
@@ -46,5 +44,3 @@ open class FooterLoadingView: UIView {
         retry?()
     }
 }
-
-#endif

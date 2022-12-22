@@ -2,8 +2,6 @@
 //  PagingTable.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class PagingTable: Table {
@@ -62,5 +60,3 @@ extension PagingTable {
         delegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
     }
 }
-
-#endif

@@ -2,8 +2,6 @@
 //  NoObjectsView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class NoObjectsView: UIView {
@@ -28,5 +26,3 @@ open class NoObjectsView: UIView {
         return nil
     }
 }
-
-#endif

@@ -2,8 +2,6 @@
 //  ValidatableField.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import CommonUtils
 
@@ -50,5 +48,3 @@ open class ValidatableField: UITextField, ValidatableInput {
         }
     }
 }
-
-#endif

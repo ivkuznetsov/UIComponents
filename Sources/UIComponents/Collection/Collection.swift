@@ -2,8 +2,6 @@
 //  Collection.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import CommonUtils
 
@@ -325,7 +323,8 @@ extension Collection: UICollectionViewDelegateFlowLayout {
             view.setNeedsLayout()
             view.layoutIfNeeded()
             
-            let height = view.systemLayoutSizeFitting(CGSize(width: defaultWidth, height: UIView.layoutFittingCompressedSize.height),
+            let height = view.systemLayoutSizeFitting(CGSize(width: defaultWidth,
+                                                             height: UIView.layoutFittingCompressedSize.height),
                                                       withHorizontalFittingPriority: UILayoutPriority(rawValue: 1000),
                                                       verticalFittingPriority: UILayoutPriority(rawValue: 1)).height
             
@@ -338,5 +337,3 @@ extension Collection: UICollectionViewDelegateFlowLayout {
         }
     }
 }
-
-#endif

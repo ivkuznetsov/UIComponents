@@ -2,8 +2,6 @@
 //  CircularProgressView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class CircularProgressView: UIView {
@@ -70,5 +68,3 @@ open class CircularProgressView: UIView {
         bgLayer.path = path.cgPath
     }
 }
-
-#endif

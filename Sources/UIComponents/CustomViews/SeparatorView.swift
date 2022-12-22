@@ -2,8 +2,6 @@
 //  SeparatorView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class SeparatorView: UIView {
@@ -59,5 +57,3 @@ open class SeparatorView: UIView {
         setNeedsDisplay()
     }
 }
-
-#endif

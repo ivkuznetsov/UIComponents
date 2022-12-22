@@ -2,8 +2,6 @@
 //  BaseTabsViewController.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class BaseTabsViewController: BaseController {
@@ -158,5 +156,3 @@ open class BaseTabsViewController: BaseController {
 }
 
 extension BaseTabsViewController: UIGestureRecognizerDelegate { }
-
-#endif

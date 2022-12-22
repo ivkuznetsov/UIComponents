@@ -2,8 +2,6 @@
 //  LoadingBarView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class LoadingBarView: UIView {
@@ -173,5 +171,3 @@ open class LoadingBarView: UIView {
         }
     }
 }
-
-#endif

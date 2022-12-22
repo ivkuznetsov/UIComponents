@@ -2,8 +2,6 @@
 //  TabsViewButton.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class TabsViewButton: UIButton {
@@ -38,5 +36,3 @@ open class TabsViewButton: UIButton {
         }
     }
 }
-
-#endif

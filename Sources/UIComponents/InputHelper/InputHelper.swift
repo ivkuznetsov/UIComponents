@@ -2,8 +2,6 @@
 //  InputHelper.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 fileprivate extension UIView.AnimationOptions {
@@ -321,5 +319,3 @@ public class InputHelper: NSObject, UIGestureRecognizerDelegate {
         NotificationCenter.default.removeObserver(self)
     }
 }
-
-#endif

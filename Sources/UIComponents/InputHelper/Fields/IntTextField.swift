@@ -2,8 +2,6 @@
 //  IntTextField.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public class IntTextField: ValidatableField {
@@ -66,5 +64,3 @@ public class IntTextField: ValidatableField {
         text = formatValue?(result) ?? result
     }
 }
-
-#endif

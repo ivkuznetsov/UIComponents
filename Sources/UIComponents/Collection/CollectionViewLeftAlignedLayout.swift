@@ -2,8 +2,6 @@
 //  CollectionViewLeftAlignedLayout.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 class CollectionViewLeftAlignedLayout: UICollectionViewFlowLayout {
@@ -26,5 +24,3 @@ class CollectionViewLeftAlignedLayout: UICollectionViewFlowLayout {
         return attributes
     }
 }
-
-#endif

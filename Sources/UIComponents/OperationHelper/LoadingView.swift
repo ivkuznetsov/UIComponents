@@ -2,8 +2,6 @@
 //  LoadingView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import CommonUtils
 
@@ -72,5 +70,3 @@ open class LoadingView : UIView {
         }
     }
 }
-
-#endif

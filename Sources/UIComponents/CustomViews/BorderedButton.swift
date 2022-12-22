@@ -2,8 +2,6 @@
 //  BorderedButton.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class BorderedButton: FadeButton {
@@ -55,5 +53,3 @@ open class BorderedButton: FadeButton {
         }
     }
 }
-
-#endif

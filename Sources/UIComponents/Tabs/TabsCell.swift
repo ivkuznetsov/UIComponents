@@ -2,8 +2,6 @@
 //  TabsCell.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class TabsCell: UIView {
@@ -52,5 +50,3 @@ open class TabsCell: UIView {
         return view
     }
 }
-
-#endif

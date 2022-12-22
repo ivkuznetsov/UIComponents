@@ -2,8 +2,6 @@
 //  FailedView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class FailedView: UIView {
@@ -33,5 +31,3 @@ open class FailedView: UIView {
         retry?()
     }
 }
-
-#endif

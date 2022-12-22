@@ -2,8 +2,6 @@
 //  FloatTextField.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public class FloatTextField: ValidatableField {
@@ -69,5 +67,3 @@ public class FloatTextField: ValidatableField {
         text = formatValue?(result) ?? result
     }
 }
-
-#endif

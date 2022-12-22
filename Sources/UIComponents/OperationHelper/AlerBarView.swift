@@ -2,8 +2,6 @@
 //  AlerBarView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class AlertBarView: UIView {
@@ -54,5 +52,3 @@ open class AlertBarView: UIView {
         }
     }
 }
-
-#endif

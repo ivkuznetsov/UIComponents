@@ -2,8 +2,6 @@
 //  Table.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import CommonUtils
 
@@ -63,15 +61,11 @@ open class Table: StaticSetupObject {
     public struct Cell {
         
         fileprivate let type: UITableViewCell.Type
-        fileprivate let fill: ((UITableViewCell)->())?
+        fileprivate let fill: (UITableViewCell)->()
         
         public init<T: BaseTableViewCell>(_ type: T.Type, _ fill: ((T)->())? = nil) {
             self.type = type
-            if let fill = fill {
-                self.fill = { fill($0 as! T) }
-            } else {
-                self.fill = nil
-            }
+            self.fill = { fill?($0 as! T) }
         }
     }
     
@@ -121,18 +115,7 @@ open class Table: StaticSetupObject {
     public let table: UITableView
     public private(set) var objects: [AnyHashable] = []
     
-    //adds edit/done button to navigation item
-    public weak var navigationItem: UINavigationItem?
-    public var processEditing: ((@escaping ()->())->())?
-    
-    private lazy var editButton: UIBarButtonItem = {
-        UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editAction))
-    }()
-    private lazy var doneButton: UIBarButtonItem = {
-        UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(editAction))
-    }()
-    
-    open var noObjectsView: NoObjectsView = NoObjectsView.loadFromNib()
+    open lazy var noObjectsView: NoObjectsView = NoObjectsView.loadFromNib()
     
     private var reusingIds = Set<String>()
     
@@ -213,7 +196,7 @@ open class Table: StaticSetupObject {
                 self?.objects = objects
                 
             }, addAnimation: delegate.animationForAdding(table: self) ??
-                    (type(of: self).defaultDelegate?.animationForAdding(table: self) ?? .fade))
+                         (type(of: self).defaultDelegate?.animationForAdding(table: self) ?? .fade), deleteAnimation: .fade)
         } else {
             self.objects = objects
             table.reloadData()
@@ -225,7 +208,6 @@ open class Table: StaticSetupObject {
         } else {
             noObjectsView.removeFromSuperview()
         }
-        reloadEditButton(animated: animated)
     }
     
     public func scrollTo(object: AnyHashable, animated: Bool) {
@@ -245,7 +227,7 @@ open class Table: StaticSetupObject {
                     let createCell = self.delegate?.createCell(object: object, table: self) ??
                         Self.defaultDelegate?.createCell(object: object, table: self)
                     
-                    createCell?.fill?($0)
+                    createCell?.fill($0)
                 }
             } else {
                 resIndex = objects.firstIndex(of: $0)
@@ -269,31 +251,6 @@ open class Table: StaticSetupObject {
             }
         } else {
             deferredUpdate = true
-        }
-    }
-    
-    @objc public func editAction() {
-        let complete = { [weak self] in
-            if let wSelf = self {
-                wSelf.table.setEditing(!wSelf.table.isEditing, animated: true)
-                wSelf.reloadEditButton(animated: true)
-            }
-        }
-        if let block = processEditing {
-            block(complete)
-        } else {
-            complete()
-        }
-    }
-    
-    private func reloadEditButton(animated: Bool) {
-        if let navigationItem = navigationItem {
-            if noObjectsView.superview == nil {
-                navigationItem.setRightBarButton(table.isEditing ? doneButton : editButton, animated: animated)
-            } else {
-                navigationItem.setRightBarButton(nil, animated: animated)
-                table.setEditing(false, animated: animated)
-            }
         }
     }
     
@@ -359,11 +316,8 @@ extension Table: UITableViewDataSource {
             }
             
             cell = tableView.dequeueReusableCell(withIdentifier: String(describing: createCell.type))!
-            createCell.fill?(cell)
-            
-            if let cell = cell as? ObjectHolder {
-                cell.object = object
-            }
+            createCell.fill(cell)
+            (cell as? ObjectHolder)?.object = object
         }
         
         cell.width = tableView.width
@@ -506,5 +460,3 @@ extension Table: UITableViewDataSourcePrefetching {
         }
     }
 }
-
-#endif

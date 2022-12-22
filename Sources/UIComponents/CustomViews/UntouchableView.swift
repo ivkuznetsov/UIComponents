@@ -2,8 +2,6 @@
 //  UntouchableView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class UntouchableView: UIView {
@@ -15,5 +13,3 @@ open class UntouchableView: UIView {
         return nil
     }
 }
-
-#endif

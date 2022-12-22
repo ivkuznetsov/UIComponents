@@ -2,8 +2,6 @@
 //  FadeButton.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class FadeButton: UIButton {
@@ -47,5 +45,3 @@ open class FadeButton: UIButton {
         didSet { additionalView?.isHidden = isHidden }
     }
 }
-
-#endif

@@ -2,8 +2,6 @@
 //  ContainerTableCell.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public class ContainerTableCell: BaseTableViewCell {
@@ -21,5 +19,3 @@ public class ContainerTableCell: BaseTableViewCell {
         contentView.attach(view, type: type)
     }
 }
-
-#endif

@@ -2,8 +2,6 @@
 //  TabsView.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 open class TabsView: UIView {
@@ -156,5 +154,3 @@ open class TabsView: UIView {
         return prevIndex
     }
 }
-
-#endif

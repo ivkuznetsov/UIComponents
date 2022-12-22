@@ -2,8 +2,6 @@
 //  WebViewController.swift
 //
 
-#if os(iOS)
-
 import UIKit
 import WebKit
 
@@ -167,5 +165,3 @@ extension WKUserContentController {
         }
     }
 }
-
-#endif

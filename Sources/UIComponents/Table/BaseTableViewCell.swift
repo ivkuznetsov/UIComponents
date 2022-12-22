@@ -2,8 +2,6 @@
 //  BaseTableViewCell.swift
 //
 
-#if os(iOS)
-
 import UIKit
 
 public protocol ObjectHolder: AnyObject {
@@ -50,5 +48,3 @@ open class BaseTableViewCell: UITableViewCell, ObjectHolder {
     
     open func reloadSelection(animated: Bool) { }
 }
-
-#endif
