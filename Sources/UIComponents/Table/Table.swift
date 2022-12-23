@@ -13,7 +13,7 @@ public protocol TableDelegate: UITableViewDelegate {
     //by default it becomes visible when objects array is empty
     func shouldShowNoData(objects: [AnyHashable], table: Table) -> Bool
     
-    func action(object: AnyHashable, table: Table) -> SelectionResult
+    func action(object: AnyHashable, table: Table) -> Table.Result
     
     func createCell(object: AnyHashable, table: Table) -> UITableView.Cell?
     
@@ -30,7 +30,7 @@ public extension TableDelegate {
     
     func shouldShowNoData(objects: [AnyHashable], table: Table) -> Bool { objects.isEmpty }
     
-    func action(object: AnyHashable, table: Table) -> SelectionResult { .deselect }
+    func action(object: AnyHashable, table: Table) -> Table.Result { .deselect }
     
     func createCell(object: AnyHashable, table: Table) -> UITableView.Cell? { nil }
     
@@ -47,6 +47,8 @@ public protocol TablePrefetch {
 }
 
 open class Table: StaticSetupObject {
+    
+    public typealias Result = SelectionResult
     
     public enum Editor {
         case delete(()->())

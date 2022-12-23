@@ -11,7 +11,7 @@ public protocol CollectionDelegate: UICollectionViewDelegate {
     
     func viewSizeFor(view: UIView, defaultSize: CGSize, collection: Collection) -> CGSize?
     
-    func action(object: AnyHashable, collection: Collection) -> SelectionResult?
+    func action(object: AnyHashable, collection: Collection) -> Collection.Result?
     
     func createCell(object: AnyHashable, collection: Collection) -> UICollectionView.Cell?
     
@@ -28,7 +28,7 @@ public extension CollectionDelegate {
     
     func viewSizeFor(view: UIView, defaultSize: CGSize, collection: Collection) -> CGSize? { nil }
     
-    func action(object: AnyHashable, collection: Collection) -> SelectionResult? { nil }
+    func action(object: AnyHashable, collection: Collection) -> Collection.Result? { nil }
     
     func createCell(object: AnyHashable, collection: Collection) -> UICollectionView.Cell? { nil }
     
@@ -40,6 +40,8 @@ public extension CollectionDelegate {
 }
 
 open class Collection: StaticSetupObject {
+    
+    public typealias Result = SelectionResult
     
     public let collection: CollectionView
     weak var delegate: CollectionDelegate?
