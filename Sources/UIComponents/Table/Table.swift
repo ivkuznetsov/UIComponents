@@ -8,14 +8,14 @@ import CommonUtils
 public protocol TableDelegate: UITableViewDelegate {
     
     //fade by default
-    func animationForAdding(table: Table) -> UITableView.RowAnimation?
+    func animationForAdding(table: Table) -> UITableView.RowAnimation
     
     //by default it becomes visible when objects array is empty
     func shouldShowNoData(objects: [AnyHashable], table: Table) -> Bool
     
-    func action(object: AnyHashable, table: Table) -> Table.Result?
+    func action(object: AnyHashable, table: Table) -> SelectionResult
     
-    func createCell(object: AnyHashable, table: Table) -> Table.Cell?
+    func createCell(object: AnyHashable, table: Table) -> UITableView.Cell?
     
     func cellHeight(object: AnyHashable, original: CGFloat, table: Table) -> CGFloat
     
@@ -26,13 +26,13 @@ public protocol TableDelegate: UITableViewDelegate {
 
 public extension TableDelegate {
     
-    func animationForAdding(table: Table) -> UITableView.RowAnimation? { nil }
+    func animationForAdding(table: Table) -> UITableView.RowAnimation { .fade }
     
     func shouldShowNoData(objects: [AnyHashable], table: Table) -> Bool { objects.isEmpty }
     
-    func action(object: AnyHashable, table: Table) -> Table.Result? { nil }
+    func action(object: AnyHashable, table: Table) -> SelectionResult { .deselect }
     
-    func createCell(object: AnyHashable, table: Table) -> Table.Cell? { nil }
+    func createCell(object: AnyHashable, table: Table) -> UITableView.Cell? { nil }
     
     func cellHeight(object: AnyHashable, original: CGFloat, table: Table) -> CGFloat { UITableView.automaticDimension }
     
@@ -46,31 +46,9 @@ public protocol TablePrefetch {
     func prefetch(object: AnyHashable) -> Table.Cancel?
 }
 
-public protocol CellSizeCachable {
-    
-    var cacheKey: String { get }
-}
-
 open class Table: StaticSetupObject {
     
-    public enum Result: Int {
-        case deselectCell
-        case selectCell
-    }
-    
-    public struct Cell {
-        
-        fileprivate let type: UITableViewCell.Type
-        fileprivate let fill: (UITableViewCell)->()
-        
-        public init<T: BaseTableViewCell>(_ type: T.Type, _ fill: ((T)->())? = nil) {
-            self.type = type
-            self.fill = { fill?($0 as! T) }
-        }
-    }
-    
     public enum Editor {
-        
         case delete(()->())
         case insert(()->())
         case actions(()->[UIContextualAction])
@@ -85,7 +63,6 @@ open class Table: StaticSetupObject {
     }
     
     public struct Cancel {
-        
         let cancel: ()->()
         
         public init(_ cancel: @escaping ()->()) {
@@ -102,20 +79,19 @@ open class Table: StaticSetupObject {
     }
     public var cacheCellHeights = false
     
-    private var deferredUpdate: Bool = false
+    private var deferredReload: Bool = false
     open var visible: Bool = true { // defer reload when view is not visible
         didSet {
-            if visible && (visible != oldValue) && deferredUpdate {
-                set(objects: objects, animated: false)
+            if visible && (visible != oldValue) && deferredReload {
+                reloadVisibleCells()
             }
         }
     }
     
-    public static var defaultDelegate: TableDelegate?
     public let table: UITableView
     public private(set) var objects: [AnyHashable] = []
     
-    open lazy var noObjectsView: NoObjectsView = NoObjectsView.loadFromNib()
+    open lazy var noObjectsView = NoObjectsView.loadFromNib()
     
     private var reusingIds = Set<String>()
     
@@ -129,8 +105,8 @@ open class Table: StaticSetupObject {
         setup()
     }
     
-    private static func createTable(style: UITableView.Style) -> UITableView {
-        let table = UITableView(frame: CGRect.zero, style: style)
+    private static func createTable() -> UITableView {
+        let table = UITableView(frame: CGRect.zero, style: .plain)
         table.backgroundColor = .clear
         table.rowHeight = UITableView.automaticDimension
         table.estimatedRowHeight = 150
@@ -143,20 +119,11 @@ open class Table: StaticSetupObject {
         return table
     }
     
-    //this method creates UITableView, by default tableView fills view, if you need something else use customAdd
-    public init(view: UIView, style: UITableView.Style = .plain, delegate: TableDelegate) {
+    public init(view: UIView, delegate: TableDelegate) {
         self.delegate = delegate
-        table = type(of: self).createTable(style: style)
+        table = type(of: self).createTable()
         super.init()
         view.attach(table)
-        setup()
-    }
-    
-    public init(customAdd: (UITableView)->(), style: UITableView.Style = .plain, delegate: TableDelegate) {
-        self.delegate = delegate
-        table = type(of: self).createTable(style: style)
-        super.init()
-        customAdd(table)
         setup()
     }
     
@@ -168,40 +135,24 @@ open class Table: StaticSetupObject {
     }
     
     public func clearHeightCache(_ object: AnyHashable) {
-        cachedHeights[cachedHeightKeyFor(object: object)] = nil
+        cachedHeights[object.cachedHeightKey] = nil
     }
     
     open func set(objects: [AnyHashable], animated: Bool) {
         guard let delegate = delegate else { return }
         
-        let oldObjects = self.objects
-        
-        if !visible && oldObjects.count == objects.count {
-            self.objects = objects
-            deferredUpdate = true
-            return
-        }
-        
         // remove missed estimated heights
         var set = Set(cachedHeights.keys)
-        objects.forEach { set.remove(cachedHeightKeyFor(object: $0)) }
+        objects.forEach { set.remove($0.cachedHeightKey) }
         set.forEach { cachedHeights[$0] = nil }
         
-        if !deferredUpdate && (animated && oldObjects.count > 0) {
-            table.reload(oldData: oldObjects, newData: objects, deferred: { [weak self] in
-                
-                self?.reloadVisibleCells()
-            }, updateObjects: { [weak self] in
-                
-                self?.objects = objects
-                
-            }, addAnimation: delegate.animationForAdding(table: self) ??
-                         (type(of: self).defaultDelegate?.animationForAdding(table: self) ?? .fade), deleteAnimation: .fade)
-        } else {
-            self.objects = objects
-            table.reloadData()
-            deferredUpdate = false
-        }
+        table.reload(oldData: self.objects,
+                     newData: objects,
+                     deferred: { reloadVisibleCells() },
+                     updateObjects: { self.objects = objects },
+                     addAnimation: delegate.animationForAdding(table: self),
+                     deleteAnimation: .fade,
+                     animated: animated)
         
         if delegate.shouldShowNoData(objects: objects, table: self) {
             table.attach(noObjectsView, type: .safeArea)
@@ -217,24 +168,20 @@ open class Table: StaticSetupObject {
     }
     
     public func reloadVisibleCells() {
-        table.visibleCells.forEach {
-            var resIndex: Int?
-            
-            if let cell = $0 as? ObjectHolder {
-                if let object = cell.object, let index = objects.firstIndex(of: object) {
-                    resIndex = index
+        if visible {
+            deferredReload = false
+            table.visibleCells.forEach {
+                if let indexPath = table.indexPath(for: $0) {
+                    let object = objects[indexPath.row]
                     
-                    let createCell = self.delegate?.createCell(object: object, table: self) ??
-                        Self.defaultDelegate?.createCell(object: object, table: self)
-                    
-                    createCell?.fill($0)
+                    if object as? UIView == nil {
+                        delegate?.createCell(object: object, table: self)?.fill($0)
+                    }
+                    $0.separatorHidden = indexPath.row == objects.count - 1 && table.tableFooterView != nil
                 }
-            } else {
-                resIndex = objects.firstIndex(of: $0)
             }
-            if let index = resIndex {
-                $0.separatorHidden = index == objects.count - 1 && self.table.tableFooterView != nil
-            }
+        } else {
+            deferredReload = true
         }
     }
     
@@ -244,35 +191,18 @@ open class Table: StaticSetupObject {
     }
     
     @objc private func updateHeights() {
-        if visible {
-            if delegate != nil {
-                table.beginUpdates()
-                table.endUpdates()
-            }
-        } else {
-            deferredUpdate = true
+        if delegate != nil {
+            table.beginUpdates()
+            table.endUpdates()
         }
-    }
-    
-    fileprivate func cachedHeightKeyFor(object: AnyHashable) -> NSValue {
-        if let object = object as? CellSizeCachable {
-            return NSNumber(integerLiteral: object.cacheKey.hash)
-        }
-        return NSValue(nonretainedObject: object)
     }
     
     open override func responds(to aSelector: Selector!) -> Bool {
-        if !super.responds(to: aSelector) {
-            return delegate?.responds(to: aSelector) ?? false
-        }
-        return true
+        super.responds(to: aSelector) ? true : (delegate?.responds(to: aSelector) ?? false)
     }
     
     open override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        if !super.responds(to: aSelector) {
-            return delegate
-        }
-        return self
+        super.responds(to: aSelector) ? self : delegate
     }
     
     deinit {
@@ -304,7 +234,7 @@ extension Table: UITableViewDataSource {
             tableCell.attach(view: object, type: containerCellAttachType)
             cell = tableCell
         } else {
-            guard let createCell = (delegate?.createCell(object: object, table: self) ?? Self.defaultDelegate?.createCell(object: object, table: self)) else {
+            guard let createCell = delegate?.createCell(object: object, table: self) else {
                 fatalError("Please specify cell for \(object)")
             }
             
@@ -317,7 +247,6 @@ extension Table: UITableViewDataSource {
             
             cell = tableView.dequeueReusableCell(withIdentifier: String(describing: createCell.type))!
             createCell.fill(cell)
-            (cell as? ObjectHolder)?.object = object
         }
         
         cell.width = tableView.width
@@ -333,19 +262,16 @@ extension Table: UITableViewDataSource {
         var height: CGFloat?
         
         if cacheCellHeights {
-            height = cachedHeights[cachedHeightKeyFor(object: object)]
+            height = cachedHeights[object.cachedHeightKey]
         }
         if height == nil {
             height = delegate?.cellHeight(object: object, original: resultHeight, table: self)
-        }
-        if height == nil || height! == 0 {
-            height = type(of: self).defaultDelegate?.cellHeight(object: object, original: resultHeight, table: self)
         }
         if let height = height, height > 0 {
             resultHeight = height
         }
         if cacheCellHeights {
-            cachedHeights[cachedHeightKeyFor(object: object)] = resultHeight
+            cachedHeights[object.cachedHeightKey] = resultHeight
         }
         return resultHeight
     }
@@ -357,23 +283,22 @@ extension Table: UITableViewDataSource {
         
         let object = objects[indexPath.row]
         if let cell = object as? UITableViewCell {
-            return cell.bounds.size.height
+            return cell.bounds.height
         } else if let cell = object as? UIView {
-            return cell.systemLayoutSizeFitting(CGSize(width: tableView.width, height: CGFloat.greatestFiniteMagnitude)).height
-        } else if let value = cachedHeights[cachedHeightKeyFor(object: object)] {
+            return cell.systemLayoutSizeFitting(CGSize(width: tableView.width,
+                                                       height: CGFloat.greatestFiniteMagnitude)).height
+        } else if let value = cachedHeights[object.cachedHeightKey] {
             return value
-        } else if let value = (delegate?.cellEstimatedHeight(object: object, original: tableView.estimatedRowHeight, table: self) ??
-            type(of: self).defaultDelegate?.cellEstimatedHeight(object: object, original: tableView.estimatedRowHeight, table: self)) {
+        } else if let value = delegate?.cellEstimatedHeight(object: object,
+                                                            original: tableView.estimatedRowHeight,
+                                                            table: self) {
             return value
         }
         return 150
     }
     
     public func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        let object = objects[indexPath.row]
-        
-        if let editor = delegate?.cellEditor(object: object, table: self) ?? type(of: self).defaultDelegate?.cellEditor(object: object, table: self) {
-            
+        if let editor = delegate?.cellEditor(object: objects[indexPath.row], table: self) {
             return editor.style != .none
         }
         return false
@@ -383,33 +308,20 @@ extension Table: UITableViewDataSource {
 extension Table: UITableViewDelegate {
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let object = objects[indexPath.row]
-        
-        switch delegate?.action(object: object, table: self) {
-        case .deselectCell:
+        if delegate?.action(object: objects[indexPath.row], table: self) == .deselect {
             tableView.deselectRow(at: indexPath, animated: true)
-        case .selectCell: break
-        case .none:
-            switch type(of: self).defaultDelegate?.action(object: object, table: self) {
-            case .deselectCell:
-                tableView.deselectRow(at: indexPath, animated: true)
-            default: break
-            }
         }
     }
     
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if useEstimatedCellHeights, let cell = cell as? UITableViewCell & ObjectHolder, let object = cell.object {
-            cachedHeights[cachedHeightKeyFor(object: object)] = cell.bounds.size.height
+        if useEstimatedCellHeights, let indexPath = tableView.indexPath(for: cell) {
+            cachedHeights[objects[indexPath.row].cachedHeightKey] = cell.bounds.height
         }
         delegate?.tableView?(tableView, willDisplay: cell, forRowAt: indexPath)
     }
     
     public func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        let object = objects[indexPath.row]
-        
-        if let editor = delegate?.cellEditor(object: object, table: self) ?? type(of: self).defaultDelegate?.cellEditor(object: object, table: self) {
-            
+        if let editor = delegate?.cellEditor(object: objects[indexPath.row], table: self) {
             switch editor {
             case .delete(let action): action()
             case .insert(let action): action()
@@ -419,9 +331,8 @@ extension Table: UITableViewDelegate {
     }
     
     public func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let object = objects[indexPath.row]
         
-        if let editor = delegate?.cellEditor(object: object, table: self) ?? type(of: self).defaultDelegate?.cellEditor(object: object, table: self),
+        if let editor = delegate?.cellEditor(object: objects[indexPath.row], table: self),
            case .actions(let actions) = editor {
             
             let configuration = UISwipeActionsConfiguration(actions: actions())
@@ -432,12 +343,7 @@ extension Table: UITableViewDelegate {
     }
     
     public func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        let object = objects[indexPath.row]
-        
-        if let editor = delegate?.cellEditor(object: object, table: self) ?? type(of: self).defaultDelegate?.cellEditor(object: object, table: self) {
-            return editor.style
-        }
-        return .none
+        delegate?.cellEditor(object: objects[indexPath.row], table: self)?.style ?? .none
     }
 }
 

@@ -106,10 +106,6 @@ open class PagingCollection: Collection {
         super.init(view: view, delegate: pagingDelegate)
     }
     
-    public init(customAdd: (CollectionView)->(), pagingDelegate: PagingLoaderDelegate & CollectionDelegate) {
-        super.init(customAdd: customAdd, delegate: pagingDelegate)
-    }
-    
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "contentOffset", collection.superview != nil {
             reloadFooterPosition()

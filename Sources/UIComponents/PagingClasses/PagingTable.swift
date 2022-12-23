@@ -37,12 +37,8 @@ open class PagingTable: Table {
         super.init(table: table, delegate: pagingDelegate)
     }
     
-    public init(view: UIView, style: UITableView.Style = .plain, pagingDelegate: PagingLoaderDelegate & TableDelegate) {
-        super.init(view: view, style: style, delegate: pagingDelegate)
-    }
-    
-    public init(customAdd: (UITableView)->(), style: UITableView.Style = .plain, pagingDelegate: PagingLoaderDelegate & TableDelegate) {
-        super.init(customAdd: customAdd, style: style, delegate: pagingDelegate)
+    public init(view: UIView, pagingDelegate: PagingLoaderDelegate & TableDelegate) {
+        super.init(view: view, delegate: pagingDelegate)
     }
 }
 

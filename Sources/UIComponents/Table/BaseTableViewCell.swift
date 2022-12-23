@@ -4,11 +4,6 @@
 
 import UIKit
 
-public protocol ObjectHolder: AnyObject {
-    
-    var object: AnyHashable? { get set }
-}
-
 public extension UITableViewCell {
     
     var separatorHidden: Bool {
@@ -21,9 +16,7 @@ public extension UITableViewCell {
     }
 }
 
-open class BaseTableViewCell: UITableViewCell, ObjectHolder {
-    
-    public var object: AnyHashable?
+open class BaseTableViewCell: UITableViewCell {
     
     open override func awakeFromNib() {
         super.awakeFromNib()
