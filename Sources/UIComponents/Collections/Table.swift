@@ -142,8 +142,10 @@ open class Table: StaticSetupObject {
         
         table.reload(oldData: self.objects,
                      newData: objects,
-                     deferred: { reloadVisibleCells() },
-                     updateObjects: { self.objects = objects },
+                     updateObjects: {
+            reloadVisibleCells(excepting: $0)
+            self.objects = objects
+        },
                      addAnimation: delegate.animationForAdding(table: self),
                      deleteAnimation: .fade,
                      animated: animated)
@@ -161,11 +163,11 @@ open class Table: StaticSetupObject {
         }
     }
     
-    public func reloadVisibleCells() {
+    public func reloadVisibleCells(excepting: Set<Int> = Set()) {
         if visible {
             deferredReload = false
             table.visibleCells.forEach {
-                if let indexPath = table.indexPath(for: $0) {
+                if let indexPath = table.indexPath(for: $0), !excepting.contains(indexPath.item) {
                     let object = objects[indexPath.row]
                     
                     if object as? UIView == nil {

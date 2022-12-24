@@ -114,11 +114,11 @@ open class Collection: StaticSetupObject {
     
     private var deferredCompletion: (()->())?
     
-    public func reloadVisibleCells() {
+    public func reloadVisibleCells(excepting: Set<Int> = Set()) {
         if visible {
             deferredReload = false
             collection.visibleCells.forEach { item in
-                if let indexPath = collection.indexPath(for: item) {
+                if let indexPath = collection.indexPath(for: item), !excepting.contains(indexPath.item) {
                     let object = objects[indexPath.item]
                     
                     if object as? UIView == nil {
@@ -172,7 +172,7 @@ open class Collection: StaticSetupObject {
                           oldData: self.objects,
                           newData: objects,
                           updateObjects: {
-                            reloadVisibleCells()
+                            reloadVisibleCells(excepting: $0)
                             self.objects = objects
                           },
                           completion: completion)
