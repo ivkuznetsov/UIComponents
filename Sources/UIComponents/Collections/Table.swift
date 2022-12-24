@@ -79,7 +79,12 @@ open class Table: StaticSetupObject {
     public var useEstimatedCellHeights = true {
         didSet { table.estimatedRowHeight = useEstimatedCellHeights ? 150 : 0 }
     }
+    
     public var cacheCellHeights = false
+    fileprivate var cachedHeights: [NSValue:CGFloat] = [:]
+    public func clearHeightCache(_ object: AnyHashable) {
+        cachedHeights[object.cachedHeightKey] = nil
+    }
     
     private var deferredReload: Bool = false
     open var visible: Bool = true { // defer reload when view is not visible
@@ -95,19 +100,24 @@ open class Table: StaticSetupObject {
     
     open lazy var noObjectsView = NoObjectsView.loadFromNib()
     
-    private var reusingIds = Set<String>()
-    
     weak var delegate: TableDelegate?
-    fileprivate var cachedHeights: [NSValue:CGFloat] = [:]
     
     public init(table: UITableView, delegate: TableDelegate) {
         self.table = table
         self.delegate = delegate
         super.init()
-        setup()
+        
+        table.delegate = self
+        table.dataSource = self
+        table.prefetchDataSource = delegate is TablePrefetch ? self : nil
+        table.tableFooterView = UIView()
     }
     
-    private static func createTable() -> UITableView {
+    public convenience init(view: UIView, delegate: TableDelegate) {
+        self.init(table: type(of: self).createTable(view: view), delegate: delegate)
+    }
+    
+    static func createTable(view: UIView) -> UITableView {
         let table = UITableView(frame: CGRect.zero, style: .plain)
         table.backgroundColor = .clear
         table.rowHeight = UITableView.automaticDimension
@@ -118,26 +128,8 @@ open class Table: StaticSetupObject {
                 view.delaysContentTouches = false
             }
         }
-        return table
-    }
-    
-    public init(view: UIView, delegate: TableDelegate) {
-        self.delegate = delegate
-        table = type(of: self).createTable()
-        super.init()
         view.attach(table)
-        setup()
-    }
-    
-    func setup() {
-        table.delegate = self
-        table.dataSource = self
-        table.prefetchDataSource = delegate is TablePrefetch ? self : nil
-        table.tableFooterView = UIView()
-    }
-    
-    public func clearHeightCache(_ object: AnyHashable) {
-        cachedHeights[object.cachedHeightKey] = nil
+        return table
     }
     
     open func set(objects: [AnyHashable], animated: Bool) {
@@ -187,18 +179,6 @@ open class Table: StaticSetupObject {
         }
     }
     
-    public func setNeedUpdateHeights() {
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updateHeights), object: nil)
-        perform(#selector(updateHeights), with: nil, afterDelay: 0)
-    }
-    
-    @objc private func updateHeights() {
-        if delegate != nil {
-            table.beginUpdates()
-            table.endUpdates()
-        }
-    }
-    
     open override func responds(to aSelector: Selector!) -> Bool {
         super.responds(to: aSelector) ? true : (delegate?.responds(to: aSelector) ?? false)
     }
@@ -211,7 +191,6 @@ open class Table: StaticSetupObject {
         prefetchTokens.values.forEach { $0.cancel() }
         table.delegate = nil
         table.dataSource = nil
-        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updateHeights), object: nil)
     }
 }
 
@@ -226,31 +205,16 @@ extension Table: UITableViewDataSource {
         if let object = object as? UITableViewCell {
             cell = object
         } else if let object = object as? UIView {
-            let id = "\(object.hash)"
-            
-            if !reusingIds.contains(id) {
-                table.register(ContainerTableCell.self, forCellReuseIdentifier: id)
-                reusingIds.insert(id)
-            }
-            let tableCell = table.dequeueReusableCell(withIdentifier: id) as! ContainerTableCell
-            tableCell.attach(view: object, type: containerCellAttachType)
+            let tableCell = table.createCell(for: ContainerTableCell.self, identifier: "\(object.hash)", source: .code)
+            tableCell.attach(viewToAttach: object, type: containerCellAttachType)
             cell = tableCell
         } else {
             guard let createCell = delegate?.createCell(object: object, table: self) else {
                 fatalError("Please specify cell for \(object)")
             }
-            
-            let id = String(describing: createCell.type)
-            
-            if !reusingIds.contains(id) {
-                table.register(UINib(nibName: id, bundle: Bundle(for: createCell.type)), forCellReuseIdentifier: id)
-                reusingIds.insert(id)
-            }
-            
-            cell = tableView.dequeueReusableCell(withIdentifier: String(describing: createCell.type))!
+            cell = table.createCell(for: createCell.type)
             createCell.fill(cell)
         }
-        
         cell.width = tableView.width
         cell.layoutIfNeeded()
         cell.separatorHidden = (indexPath.row == objects.count - 1) && table.tableFooterView != nil

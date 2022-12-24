@@ -5,6 +5,26 @@
 import UIKit
 import CommonUtils
 
+open class CollectionView: UICollectionView {
+    
+    public override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        super.init(frame: frame, collectionViewLayout: layout)
+    }
+    
+    public required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        self.canCancelContentTouches = true
+        self.delaysContentTouches = false
+    }
+    
+    open override func touchesShouldCancel(in view: UIView) -> Bool {
+        if view is UIControl {
+            return true
+        }
+        return super.touchesShouldCancel(in: view)
+    }
+}
+
 public protocol CollectionDelegate: UICollectionViewDelegate {
     
     func shouldShowNoData(_ objects: [AnyHashable], collection: Collection) -> Bool
@@ -47,7 +67,7 @@ open class Collection: StaticSetupObject {
     weak var delegate: CollectionDelegate?
     
     public var staticCellSize: CGSize? {
-        didSet { layout?.itemSize = staticCellSize ?? .zero }
+        didSet { collection.flowLayout?.itemSize = staticCellSize ?? .zero }
     }
     // defer reload when view is not visible
     var visible = true {
@@ -58,10 +78,6 @@ open class Collection: StaticSetupObject {
         }
     }
     
-    public var layout: UICollectionViewFlowLayout? {
-        collection.collectionViewLayout as? UICollectionViewFlowLayout
-    }
-    
     public var noObjectsView = NoObjectsView.loadFromNib()
     
     public private(set) var objects: [AnyHashable] = []
@@ -69,25 +85,22 @@ open class Collection: StaticSetupObject {
     private var updatingData: Bool = false
     private var lazyObjects: [AnyHashable]?
     
-    open var setupViewContainer: ((ContainerCollectionCell)->())?
+    open var setupViewContainer: ((ContainerCollectionItem)->())?
     
     public init(collection: CollectionView, delegate: CollectionDelegate) {
         self.delegate = delegate
         self.collection = collection
         super.init()
-        setup()
+        collection.delegate = self
+        collection.dataSource = self
     }
     
-    public init(view: UIView, delegate: CollectionDelegate) {
-        self.delegate = delegate
-        collection = Self.createCollectionView()
-        super.init()
-        view.attach(collection)
-        setup()
+    public convenience init(view: UIView, delegate: CollectionDelegate) {
+        self.init(collection: type(of: self).createCollectionView(view: view), delegate: delegate)
     }
     
-    private static func createCollectionView() -> CollectionView {
-        let layout = CollectionViewLeftAlignedLayout()
+    static func createCollectionView(view: UIView) -> CollectionView {
+        let layout = VerticalLeftAlignedLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         
@@ -95,12 +108,8 @@ open class Collection: StaticSetupObject {
         collection.backgroundColor = .clear
         collection.alwaysBounceVertical = true
         collection.contentInsetAdjustmentBehavior = .always
+        view.attach(collection)
         return collection
-    }
-    
-    func setup() {
-        collection.delegate = self
-        collection.dataSource = self
     }
     
     private var deferredCompletion: (()->())?
@@ -120,20 +129,6 @@ open class Collection: StaticSetupObject {
         } else {
             deferredReload = true
         }
-    }
-    
-    public func set(cellsPadding: CGFloat) {
-        layout?.sectionInset = .init(top: cellsPadding, left: cellsPadding, bottom: cellsPadding, right: cellsPadding)
-        layout?.minimumInteritemSpacing = cellsPadding
-        layout?.minimumLineSpacing = cellsPadding
-    }
-    
-    public var availableCellWidth: CGFloat {
-        var width = collection.width
-        if let layout = layout {
-            width -= layout.sectionInset.left + layout.sectionInset.right + collection.safeAreaInsets.left + collection.safeAreaInsets.right
-        }
-        return width
     }
     
     open func set(objects: [AnyHashable], animated: Bool, completion: (()->())? = nil) {
@@ -205,8 +200,8 @@ extension Collection: UICollectionViewDataSource {
         let object = objects[indexPath.item]
         
         if let view = object as? UIView {
-            let cell = collection.createCell(for: ContainerCollectionCell.self, identifier: "\(view.hash)", source: .code, at: indexPath)
-            cell.attach(view: view)
+            let cell = collection.createCell(for: ContainerCollectionItem.self, identifier: "\(view.hash)", source: .code, at: indexPath)
+            cell.attach(view)
             setupViewContainer?(cell)
             return cell
         } else {
@@ -260,7 +255,7 @@ extension Collection: UICollectionViewDelegateFlowLayout {
                 view.removeFromSuperview()
             }
             
-            let insets = self.layout?.sectionInset
+            let insets = collection.flowLayout?.sectionInset
             let defaultWidth = collectionView.frame.size.width - (insets?.left ?? 0) - (insets?.right ?? 0)
             
             let targetView = view.superview ?? view
