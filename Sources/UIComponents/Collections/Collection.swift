@@ -78,7 +78,7 @@ open class Collection: StaticSetupObject {
         }
     }
     
-    public var noObjectsView = NoObjectsView.loadFromNib()
+    public var noObjectsView = NoObjectsView.loadFromNib(bundle: Bundle.module)
     
     public private(set) var objects: [AnyHashable] = []
     private var deferredReload: Bool = false

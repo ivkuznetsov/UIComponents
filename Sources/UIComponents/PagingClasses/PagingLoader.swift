@@ -45,7 +45,7 @@ open class PagingLoader: StaticSetupObject {
     open private(set) var refreshControl: UIRefreshControl?
     open var footerLoadingInset = CGSize(width: 0, height: 0)
     
-    open private(set) var footerLoadingView = FooterLoadingView.loadFromNib()
+    open private(set) var footerLoadingView = FooterLoadingView.loadFromNib(bundle: Bundle.module)
     open private(set) var loading = false
     open private(set) weak var scrollView: UIScrollView?
     

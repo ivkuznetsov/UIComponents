@@ -98,7 +98,7 @@ open class Table: StaticSetupObject {
     public let table: UITableView
     public private(set) var objects: [AnyHashable] = []
     
-    open lazy var noObjectsView = NoObjectsView.loadFromNib()
+    open lazy var noObjectsView = NoObjectsView.loadFromNib(bundle: Bundle.module)
     
     weak var delegate: TableDelegate?
     

@@ -46,10 +46,10 @@ open class OperationHelper: StaticSetupObject {
     //by default retry appears in all operations
     open var shouldSupplyRetry: (Error)->Bool
     
-    open lazy var loadingView = LoadingView.loadFromNib()
+    open lazy var loadingView = LoadingView.loadFromNib(bundle: Bundle.module)
     open lazy var loadingBarView = LoadingBarView()
-    open lazy var failedView = FailedView.loadFromNib()
-    open lazy var failedBarView = AlertBarView.loadFromNib()
+    open lazy var failedView = FailedView.loadFromNib(bundle: Bundle.module)
+    open lazy var failedBarView = AlertBarView.loadFromNib(bundle: Bundle.module)
     
     open weak var view: UIView?
     private var keyedOperations: [String:OperationToken] = [:]
