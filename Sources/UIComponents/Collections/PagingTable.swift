@@ -24,7 +24,7 @@ open class PagingTable: Table {
     }
     
     public convenience init(view: UIView, pagingDelegate: PagingLoaderDelegate & TableDelegate) {
-        self.init(list: type(of: self).createTable(view: view), pagingDelegate: pagingDelegate)
+        self.init(list: type(of: self).createList(in: view), pagingDelegate: pagingDelegate)
     }
 }
 
