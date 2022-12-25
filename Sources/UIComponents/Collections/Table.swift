@@ -123,6 +123,10 @@ open class Table: BaseList<UITableView, TableDelegate, CGFloat, ContainerTableCe
         }
     }
     
+    open override func shouldShowNoData(_ objects: [AnyHashable]) -> Bool {
+        delegate?.shouldShowNoData(objects: objects, table: self) == true
+    }
+    
     deinit {
         prefetchTokens.values.forEach { $0.cancel() }
         list.delegate = nil

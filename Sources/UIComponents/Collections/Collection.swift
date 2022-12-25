@@ -101,6 +101,10 @@ open class Collection: BaseList<CollectionView, CollectionDelegate, CGSize, Cont
                     completion: completion)
     }
     
+    open override func shouldShowNoData(_ objects: [AnyHashable]) -> Bool {
+        delegate?.shouldShowNoData(objects, collection: self) == true
+    }
+    
     deinit {
         list.delegate = nil
         list.dataSource = nil
