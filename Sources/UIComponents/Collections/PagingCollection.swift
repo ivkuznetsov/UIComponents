@@ -41,7 +41,7 @@ open class PagingCollection: Collection {
             list.contentInset = insets
             wSelf.reloadFooterPosition()
         })
-        
+        loader.footerLoadingView = FooterLoadingView.loadFromNib(bundle: Bundle.module)
         loader.scrollOnRefreshing = { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height) }
         list.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
     }

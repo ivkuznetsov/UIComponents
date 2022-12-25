@@ -18,8 +18,8 @@ open class PagingTable: Table {
                 list.tableFooterView = visible ? footer : UIView()
                 list.contentOffset = offset
         })
+        loader.footerLoadingView = FooterLoadingView.loadFromNib(bundle: Bundle.module)
         loader.scrollOnRefreshing = { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height) }
-        
         super.init(list: list, delegate: pagingDelegate)
     }
     
