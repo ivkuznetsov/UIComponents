@@ -9,15 +9,20 @@ open class CollectionView: UICollectionView {
     
     public override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         super.init(frame: frame, collectionViewLayout: layout)
+        setup()
+    }
+    
+    private func setup() {
+        canCancelContentTouches = true
+        delaysContentTouches = false
+        backgroundColor = .clear
+        alwaysBounceVertical = true
+        contentInsetAdjustmentBehavior = .always
     }
     
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.canCancelContentTouches = true
-        self.delaysContentTouches = false
-        backgroundColor = .clear
-        alwaysBounceVertical = true
-        contentInsetAdjustmentBehavior = .always
+        setup()
     }
     
     open override func touchesShouldCancel(in view: UIView) -> Bool {
