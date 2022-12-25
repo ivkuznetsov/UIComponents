@@ -43,6 +43,11 @@ open class PagingCollection: Collection {
         })
         loader.footerLoadingView = FooterLoadingView.loadFromNib(bundle: Bundle.module)
         loader.scrollOnRefreshing = { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height) }
+        loader.processPullToRefreshError = { _, error in
+            if let vc = UIViewController.topViewController {
+                Alert.present(message: error.localizedDescription, on: vc)
+            }
+        }
         list.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
     }
     

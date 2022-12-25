@@ -20,6 +20,11 @@ open class PagingTable: Table {
         })
         loader.footerLoadingView = FooterLoadingView.loadFromNib(bundle: Bundle.module)
         loader.scrollOnRefreshing = { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height) }
+        loader.processPullToRefreshError = { _, error in
+            if let vc = UIViewController.topViewController {
+                Alert.present(message: error.localizedDescription, on: vc)
+            }
+        }
         super.init(list: list, delegate: pagingDelegate)
     }
     
