@@ -89,7 +89,7 @@ open class Table: BaseList<UITableView, TableDelegate, CGFloat, ContainerTableCe
         list.tableFooterView = UIView()
     }
     
-    static func createTable(view: UIView) -> UITableView {
+    open override class func createList(in view: PlatformView) -> UITableView {
         let table = UITableView(frame: CGRect.zero, style: .plain)
         table.backgroundColor = .clear
         table.rowHeight = UITableView.automaticDimension
