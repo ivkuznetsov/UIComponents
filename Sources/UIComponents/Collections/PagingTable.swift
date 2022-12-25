@@ -3,6 +3,7 @@
 //
 
 import UIKit
+import CommonUtils
 
 open class PagingTable: Table {
     
@@ -12,14 +13,13 @@ open class PagingTable: Table {
     public init(list: UITableView, pagingDelegate: PagingLoaderDelegate & TableDelegate) {
         loader = pagingDelegate.pagingLoader().init(scrollView: list,
                                                     delegate: pagingDelegate,
-                                                    addRefreshControl: { list.refreshControl = $0 },
-                                                    scrollOnRefreshing: {
-            list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height)
-            }, setFooterVisible: { visible, footerView in
+                                                    setFooterVisible: { visible, footer in
                 let offset = list.contentOffset
-                list.tableFooterView = visible ? footerView : UIView()
+                list.tableFooterView = visible ? footer : UIView()
                 list.contentOffset = offset
         })
+        loader.scrollOnRefreshing = { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height) }
+        
         super.init(list: list, delegate: pagingDelegate)
     }
     

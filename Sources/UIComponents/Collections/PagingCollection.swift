@@ -3,6 +3,7 @@
 //
 
 import UIKit
+import CommonUtils
 
 open class PagingCollection: Collection {
     
@@ -14,37 +15,34 @@ open class PagingCollection: Collection {
     public init(list: CollectionView, pagingDelegate: CollectionDelegate & PagingLoaderDelegate) {
         super.init(list: list, delegate: pagingDelegate)
         
-        let loaderType = pagingDelegate.pagingLoader()
-        
-        loader = loaderType.init(scrollView: list,
-                                 delegate: pagingDelegate,
-                                 addRefreshControl: { list.refreshControl = $0 },
-                                 scrollOnRefreshing: { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.width) },
-                                 setFooterVisible: { [weak self] visible, footerView in
-                
-                guard let wSelf = self else { return }
-                
-                var insets = wSelf.list.contentInset
-                
-                if visible {
-                    if wSelf.yConstraint == nil {
-                        wSelf.list.addSubview(footerView)
-                            
-                        footerView.translatesAutoresizingMaskIntoConstraints = false
-                        wSelf.list.widthAnchor.constraint(equalTo: footerView.widthAnchor).isActive = true
-                        footerView.heightAnchor.constraint(equalToConstant: footerView.height).isActive = true
-                        wSelf.list.leftAnchor.constraint(equalTo: footerView.leftAnchor).isActive = true
-                        wSelf.yConstraint = footerView.topAnchor.constraint(equalTo:  wSelf.list.topAnchor)
-                        wSelf.yConstraint?.isActive = true
-                    }
-                    insets.bottom = footerView.frame.size.height
-                } else {
-                    footerView.removeFromSuperview()
-                    insets.bottom = 0
+        loader = pagingDelegate.pagingLoader().init(scrollView: list,
+                                                    delegate: pagingDelegate,
+                                                    setFooterVisible: { [weak self] visible, footer in
+            guard let wSelf = self else { return }
+            
+            var insets = list.contentInset
+            
+            if visible {
+                if wSelf.yConstraint == nil {
+                    list.addSubview(footer)
+                        
+                    footer.translatesAutoresizingMaskIntoConstraints = false
+                    list.widthAnchor.constraint(equalTo: footer.widthAnchor).isActive = true
+                    footer.heightAnchor.constraint(equalToConstant: footer.height).isActive = true
+                    list.leftAnchor.constraint(equalTo: footer.leftAnchor).isActive = true
+                    wSelf.yConstraint = footer.topAnchor.constraint(equalTo:  list.topAnchor)
+                    wSelf.yConstraint?.isActive = true
                 }
-                wSelf.list.contentInset = insets
-                wSelf.reloadFooterPosition()
+                insets.bottom = footer.height
+            } else {
+                footer.removeFromSuperview()
+                insets.bottom = 0
+            }
+            list.contentInset = insets
+            wSelf.reloadFooterPosition()
         })
+        
+        loader.scrollOnRefreshing = { list.contentOffset = CGPoint(x: 0, y: -$0.bounds.size.height) }
         list.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
     }
     
