@@ -134,6 +134,7 @@ open class Table: BaseList<UITableView, TableDelegate, CGFloat, ContainerTableCe
                     addAnimation: delegate?.animationForAdding(table: self) ?? .fade,
                     deleteAnimation: .fade,
                     animated: animated)
+        completion()
     }
     
     deinit {
