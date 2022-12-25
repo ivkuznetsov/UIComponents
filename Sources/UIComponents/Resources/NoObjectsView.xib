@@ -9,7 +9,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="AnP-fr-j4j" customClass="NoObjectsView" customModule="UIComponents">
+        <view contentMode="scaleToFill" id="AnP-fr-j4j" customClass="NoObjectsView" customModule="CommonUtils">
             <rect key="frame" x="0.0" y="0.0" width="310" height="306"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -63,9 +63,8 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="actionButton" destination="XOL-jc-fxF" id="qIj-2M-viu"/>
-                <outlet property="centerConstraint" destination="MWy-d1-GWg" id="sF9-c6-kav"/>
                 <outlet property="details" destination="Z5E-Yy-C49" id="7wv-PY-aBH"/>
-                <outlet property="title" destination="JBM-WL-Pbt" id="ct7-uE-Drz"/>
+                <outlet property="header" destination="JBM-WL-Pbt" id="4pt-wh-FNy"/>
             </connections>
             <point key="canvasLocation" x="131" y="116"/>
         </view>

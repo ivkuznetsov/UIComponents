@@ -15,13 +15,13 @@ open class CollectionView: UICollectionView {
         super.init(coder: aDecoder)
         self.canCancelContentTouches = true
         self.delaysContentTouches = false
+        backgroundColor = .clear
+        alwaysBounceVertical = true
+        contentInsetAdjustmentBehavior = .always
     }
     
     open override func touchesShouldCancel(in view: UIView) -> Bool {
-        if view is UIControl {
-            return true
-        }
-        return super.touchesShouldCancel(in: view)
+        view is UIControl ? true : super.touchesShouldCancel(in: view)
     }
 }
 
@@ -59,136 +59,51 @@ public extension CollectionDelegate {
     func proposeMoving(object: AnyHashable, toIndexPath: IndexPath) -> IndexPath { toIndexPath }
 }
 
-open class Collection: StaticSetupObject {
+open class Collection: BaseList<CollectionView, CollectionDelegate, CGSize, ContainerCollectionItem> {
     
     public typealias Result = SelectionResult
     
-    public let collection: CollectionView
-    weak var delegate: CollectionDelegate?
-    
     public var staticCellSize: CGSize? {
-        didSet { collection.flowLayout?.itemSize = staticCellSize ?? .zero }
-    }
-    // defer reload when view is not visible
-    var visible = true {
-        didSet {
-            if visible && visible != oldValue && !updatingData && deferredReload {
-                reloadVisibleCells()
-            }
-        }
+        didSet { list.flowLayout?.itemSize = staticCellSize ?? .zero }
     }
     
-    public var noObjectsView = NoObjectsView.loadFromNib(bundle: Bundle.module)
-    
-    public private(set) var objects: [AnyHashable] = []
-    private var deferredReload: Bool = false
-    private var updatingData: Bool = false
-    private var lazyObjects: [AnyHashable]?
-    
-    open var setupViewContainer: ((ContainerCollectionItem)->())?
-    
-    public init(collection: CollectionView, delegate: CollectionDelegate) {
-        self.delegate = delegate
-        self.collection = collection
-        super.init()
-        collection.delegate = self
-        collection.dataSource = self
+    public override init(list: CollectionView, delegate: CollectionDelegate) {
+        super.init(list: list, delegate: delegate)
+        list.delegate = self
+        list.dataSource = self
+        noObjectsView = NoObjectsView.loadFromNib(bundle: Bundle.module)
     }
     
-    public convenience init(view: UIView, delegate: CollectionDelegate) {
-        self.init(collection: type(of: self).createCollectionView(view: view), delegate: delegate)
-    }
-    
-    static func createCollectionView(view: UIView) -> CollectionView {
-        let layout = VerticalLeftAlignedLayout()
-        layout.minimumLineSpacing = 0
-        layout.minimumInteritemSpacing = 0
-        
-        let collection = CollectionView(frame: .zero, collectionViewLayout: layout)
-        collection.backgroundColor = .clear
-        collection.alwaysBounceVertical = true
-        collection.contentInsetAdjustmentBehavior = .always
+    open override class func createList(in view: PlatformView) -> CollectionView {
+        let collection = CollectionView(frame: .zero, collectionViewLayout: VerticalLeftAlignedLayout())
         view.attach(collection)
         return collection
     }
     
-    private var deferredCompletion: (()->())?
-    
-    public func reloadVisibleCells(excepting: Set<Int> = Set()) {
-        if visible {
-            deferredReload = false
-            collection.visibleCells.forEach { item in
-                if let indexPath = collection.indexPath(for: item), !excepting.contains(indexPath.item) {
-                    let object = objects[indexPath.item]
-                    
-                    if object as? UIView == nil {
-                        delegate?.createCell(object: object, collection: self)?.fill(item)
-                    }
-                }
-            }
-        } else {
-            deferredReload = true
-        }
-    }
-    
-    open func set(objects: [AnyHashable], animated: Bool, completion: (()->())? = nil) {
-        let resultCompletion = { [weak self] in
-            guard let wSelf = self else { return }
-            
-            let deferred = wSelf.deferredCompletion
-            wSelf.deferredCompletion = nil
-            wSelf.updatingData = false
-            
-            if wSelf.delegate?.shouldShowNoData(objects, collection: wSelf) == true {
-                wSelf.collection.attach(wSelf.noObjectsView, type: .safeArea)
-            } else {
-                wSelf.noObjectsView.removeFromSuperview()
-            }
-            deferred?()
-        }
-        deferredCompletion = completion
-        
-        if updatingData {
-            lazyObjects = objects
-        } else {
-            updatingData = true
-            
-            internalSet(objects, animated: animated) { [weak self] in
-                guard let wSelf = self else { return }
+    open override func reloadVisibleCells(excepting: Set<Int> = Set()) {
+        list.visibleCells.forEach { item in
+            if let indexPath = list.indexPath(for: item), !excepting.contains(indexPath.item) {
+                let object = objects[indexPath.item]
                 
-                if let objects = wSelf.lazyObjects {
-                    wSelf.lazyObjects = nil
-                    wSelf.internalSet(objects, animated: false, completion: resultCompletion)
-                } else {
-                    resultCompletion()
+                if object as? UIView == nil {
+                    delegate?.createCell(object: object, collection: self)?.fill(item)
                 }
             }
         }
     }
     
-    private func internalSet(_ objects: [AnyHashable], animated: Bool, completion: @escaping ()->()) {
-        collection.reload(animated: animated,
-                          expandBottom: false,
-                          oldData: self.objects,
-                          newData: objects,
-                          updateObjects: {
-                            reloadVisibleCells(excepting: $0)
-                            self.objects = objects
-                          },
-                          completion: completion)
-    }
-    
-    open override func responds(to aSelector: Selector!) -> Bool {
-        super.responds(to: aSelector) ? true : (delegate?.responds(to: aSelector) ?? false)
-    }
-    
-    open override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        super.responds(to: aSelector) ? self : delegate
+    open override func updateList(_ objects: [AnyHashable], animated: Bool, updateObjects: (Set<Int>) -> (), completion: @escaping () -> ()) {
+        list.reload(animated: animated,
+                    expandBottom: false,
+                    oldData: self.objects,
+                    newData: objects,
+                    updateObjects: updateObjects,
+                    completion: completion)
     }
     
     deinit {
-        collection.delegate = nil
-        collection.dataSource = nil
+        list.delegate = nil
+        list.dataSource = nil
     }
 }
 
@@ -200,7 +115,7 @@ extension Collection: UICollectionViewDataSource {
         let object = objects[indexPath.item]
         
         if let view = object as? UIView {
-            let cell = collection.createCell(for: ContainerCollectionItem.self, identifier: "\(view.hash)", source: .code, at: indexPath)
+            let cell = list.createCell(for: ContainerCollectionItem.self, identifier: "\(view.hash)", source: .code, at: indexPath)
             cell.attach(view)
             setupViewContainer?(cell)
             return cell
@@ -208,8 +123,7 @@ extension Collection: UICollectionViewDataSource {
             guard let createCell = delegate?.createCell(object: object, collection: self) else {
                 fatalError("Please specify cell for \(object)")
             }
-            
-            let cell = collection.createCell(for: createCell.type, at: indexPath)
+            let cell = list.createCell(for: createCell.type, at: indexPath)
             createCell.fill(cell)
             return cell
         }
@@ -223,8 +137,7 @@ extension Collection: UICollectionViewDataSource {
         let object = objects[sourceIndexPath.item]
         if let closure = delegate?.move(object: object) {
             closure(sourceIndexPath, destinationIndexPath)
-            objects.remove(at: sourceIndexPath.item)
-            objects.insert(object, at: destinationIndexPath.item)
+            moveObject(from: sourceIndexPath, to: destinationIndexPath)
         }
     }
     
@@ -255,7 +168,7 @@ extension Collection: UICollectionViewDelegateFlowLayout {
                 view.removeFromSuperview()
             }
             
-            let insets = collection.flowLayout?.sectionInset
+            let insets = list.flowLayout?.sectionInset
             let defaultWidth = collectionView.frame.size.width - (insets?.left ?? 0) - (insets?.right ?? 0)
             
             let targetView = view.superview ?? view
@@ -282,10 +195,13 @@ extension Collection: UICollectionViewDelegateFlowLayout {
             
             return CGSize(width: floor(frame.size.width), height: ceil(height))
         } else {
-            guard let size = delegate?.cellSizeFor(object: object, collection: self) else {
-                fatalError("Please specify cell size")
+            var size = cachedSize(for: object)
+            
+            if size == nil {
+                size = delegate?.cellSizeFor(object: object, collection: self)
+                cache(size: size, for: object)
             }
-            return size
+            return size ?? .zero
         }
     }
 }

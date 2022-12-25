@@ -46,7 +46,7 @@ public protocol TablePrefetch {
     func prefetch(object: AnyHashable) -> Table.Cancel?
 }
 
-open class Table: StaticSetupObject {
+open class Table: BaseList<UITableView, TableDelegate, CGFloat, ContainerTableCell> {
     
     public typealias Result = SelectionResult
     
@@ -75,46 +75,18 @@ open class Table: StaticSetupObject {
     private var prefetchTokens: [IndexPath:Cancel] = [:]
     
     //options
-    public var containerCellAttachType: UIView.AttachType = .constraints
     public var useEstimatedCellHeights = true {
-        didSet { table.estimatedRowHeight = useEstimatedCellHeights ? 150 : 0 }
+        didSet { list.estimatedRowHeight = useEstimatedCellHeights ? 150 : 0 }
     }
     
-    public var cacheCellHeights = false
-    fileprivate var cachedHeights: [NSValue:CGFloat] = [:]
-    public func clearHeightCache(_ object: AnyHashable) {
-        cachedHeights[object.cachedHeightKey] = nil
-    }
-    
-    private var deferredReload: Bool = false
-    open var visible: Bool = true { // defer reload when view is not visible
-        didSet {
-            if visible && (visible != oldValue) && deferredReload {
-                reloadVisibleCells()
-            }
-        }
-    }
-    
-    public let table: UITableView
-    public private(set) var objects: [AnyHashable] = []
-    
-    open lazy var noObjectsView = NoObjectsView.loadFromNib(bundle: Bundle.module)
-    
-    weak var delegate: TableDelegate?
-    
-    public init(table: UITableView, delegate: TableDelegate) {
-        self.table = table
-        self.delegate = delegate
-        super.init()
+    public override init(list: UITableView, delegate: TableDelegate) {
+        super.init(list: list, delegate: delegate)
         
-        table.delegate = self
-        table.dataSource = self
-        table.prefetchDataSource = delegate is TablePrefetch ? self : nil
-        table.tableFooterView = UIView()
-    }
-    
-    public convenience init(view: UIView, delegate: TableDelegate) {
-        self.init(table: type(of: self).createTable(view: view), delegate: delegate)
+        noObjectsView = NoObjectsView.loadFromNib(bundle: Bundle.module)
+        list.delegate = self
+        list.dataSource = self
+        list.prefetchDataSource = delegate is TablePrefetch ? self : nil
+        list.tableFooterView = UIView()
     }
     
     static func createTable(view: UIView) -> UITableView {
@@ -132,67 +104,29 @@ open class Table: StaticSetupObject {
         return table
     }
     
-    open func set(objects: [AnyHashable], animated: Bool) {
-        guard let delegate = delegate else { return }
-        
-        // remove missed estimated heights
-        var set = Set(cachedHeights.keys)
-        objects.forEach { set.remove($0.cachedHeightKey) }
-        set.forEach { cachedHeights[$0] = nil }
-        
-        table.reload(oldData: self.objects,
-                     newData: objects,
-                     updateObjects: {
-            reloadVisibleCells(excepting: $0)
-            self.objects = objects
-        },
-                     addAnimation: delegate.animationForAdding(table: self),
-                     deleteAnimation: .fade,
-                     animated: animated)
-        
-        if delegate.shouldShowNoData(objects: objects, table: self) {
-            table.attach(noObjectsView, type: .safeArea)
-        } else {
-            noObjectsView.removeFromSuperview()
-        }
-    }
-    
     public func scrollTo(object: AnyHashable, animated: Bool) {
         if let index = objects.firstIndex(of: object) {
-            table.scrollToRow(at: IndexPath(row: index, section:0), at: .none, animated: animated)
+            list.scrollToRow(at: IndexPath(row: index, section:0), at: .none, animated: animated)
         }
     }
     
-    public func reloadVisibleCells(excepting: Set<Int> = Set()) {
-        if visible {
-            deferredReload = false
-            table.visibleCells.forEach {
-                if let indexPath = table.indexPath(for: $0), !excepting.contains(indexPath.item) {
-                    let object = objects[indexPath.row]
-                    
-                    if object as? UIView == nil {
-                        delegate?.createCell(object: object, table: self)?.fill($0)
-                    }
-                    $0.separatorHidden = indexPath.row == objects.count - 1 && table.tableFooterView != nil
+    public override func reloadVisibleCells(excepting: Set<Int> = Set()) {
+        list.visibleCells.forEach {
+            if let indexPath = list.indexPath(for: $0), !excepting.contains(indexPath.item) {
+                let object = objects[indexPath.row]
+                
+                if object as? UIView == nil {
+                    delegate?.createCell(object: object, table: self)?.fill($0)
                 }
+                $0.separatorHidden = indexPath.row == objects.count - 1 && list.tableFooterView != nil
             }
-        } else {
-            deferredReload = true
         }
-    }
-    
-    open override func responds(to aSelector: Selector!) -> Bool {
-        super.responds(to: aSelector) ? true : (delegate?.responds(to: aSelector) ?? false)
-    }
-    
-    open override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        super.responds(to: aSelector) ? self : delegate
     }
     
     deinit {
         prefetchTokens.values.forEach { $0.cancel() }
-        table.delegate = nil
-        table.dataSource = nil
+        list.delegate = nil
+        list.dataSource = nil
     }
 }
 
@@ -207,41 +141,35 @@ extension Table: UITableViewDataSource {
         if let object = object as? UITableViewCell {
             cell = object
         } else if let object = object as? UIView {
-            let tableCell = table.createCell(for: ContainerTableCell.self, identifier: "\(object.hash)", source: .code)
-            tableCell.attach(viewToAttach: object, type: containerCellAttachType)
+            let tableCell = list.createCell(for: ContainerTableCell.self, identifier: "\(object.hash)", source: .code)
+            tableCell.attach(viewToAttach: object, type: .constraints)
+            setupViewContainer?(tableCell)
             cell = tableCell
         } else {
             guard let createCell = delegate?.createCell(object: object, table: self) else {
                 fatalError("Please specify cell for \(object)")
             }
-            cell = table.createCell(for: createCell.type)
+            cell = list.createCell(for: createCell.type)
             createCell.fill(cell)
         }
         cell.width = tableView.width
         cell.layoutIfNeeded()
-        cell.separatorHidden = (indexPath.row == objects.count - 1) && table.tableFooterView != nil
+        cell.separatorHidden = (indexPath.row == objects.count - 1) && list.tableFooterView != nil
         return cell
     }
     
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        var resultHeight = UITableView.automaticDimension
         let object = objects[indexPath.row]
         
-        var height: CGFloat?
+        var height = cachedSize(for: object)
         
-        if cacheCellHeights {
-            height = cachedHeights[object.cachedHeightKey]
-        }
         if height == nil {
-            height = delegate?.cellHeight(object: object, original: resultHeight, table: self)
+            height = delegate?.cellHeight(object: object, original: UITableView.automaticDimension, table: self)
+            if height != UITableView.automaticDimension {
+                cache(size: height, for: object)
+            }
         }
-        if let height = height, height > 0 {
-            resultHeight = height
-        }
-        if cacheCellHeights {
-            cachedHeights[object.cachedHeightKey] = resultHeight
-        }
-        return resultHeight
+        return height ?? UITableView.automaticDimension
     }
     
     public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -255,7 +183,7 @@ extension Table: UITableViewDataSource {
         } else if let cell = object as? UIView {
             return cell.systemLayoutSizeFitting(CGSize(width: tableView.width,
                                                        height: CGFloat.greatestFiniteMagnitude)).height
-        } else if let value = cachedHeights[object.cachedHeightKey] {
+        } else if let value = cachedSize(for: object) {
             return value
         } else if let value = delegate?.cellEstimatedHeight(object: object,
                                                             original: tableView.estimatedRowHeight,
@@ -283,7 +211,7 @@ extension Table: UITableViewDelegate {
     
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if useEstimatedCellHeights, let indexPath = tableView.indexPath(for: cell) {
-            cachedHeights[objects[indexPath.row].cachedHeightKey] = cell.bounds.height
+            cache(size: cell.bounds.height, for: objects[indexPath.row])
         }
         delegate?.tableView?(tableView, willDisplay: cell, forRowAt: indexPath)
     }
