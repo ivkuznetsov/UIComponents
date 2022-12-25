@@ -127,6 +127,15 @@ open class Table: BaseList<UITableView, TableDelegate, CGFloat, ContainerTableCe
         delegate?.shouldShowNoData(objects: objects, table: self) == true
     }
     
+    open override func updateList(_ objects: [AnyHashable], animated: Bool, updateObjects: (Set<Int>) -> (), completion: @escaping () -> ()) {
+        list.reload(oldData: self.objects,
+                    newData: objects,
+                    updateObjects: updateObjects,
+                    addAnimation: delegate?.animationForAdding(table: self) ?? .fade,
+                    deleteAnimation: .fade,
+                    animated: animated)
+    }
+    
     deinit {
         prefetchTokens.values.forEach { $0.cancel() }
         list.delegate = nil
