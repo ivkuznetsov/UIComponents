@@ -17,7 +17,6 @@ let package = Package(
                 dependencies: ["CommonUtils"],
                 resources: [.copy("Resources/AlertBarView.xib"),
                             .copy("Resources/FailedView.xib"),
-                            .copy("Resources/FooterLoadingView.xib"),
                             .copy("Resources/LoadingView.xib"),
                             .copy("Resources/NoObjectsView.xib"),
                             .copy("Resources/TabsCell.xib")]),

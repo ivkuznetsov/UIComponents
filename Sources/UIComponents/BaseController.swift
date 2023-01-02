@@ -22,9 +22,7 @@ open class BaseController: UIViewController {
         super.init(coder: aDecoder)
     }
     
-    open lazy var operationHelper: OperationHelper = {
-        OperationHelper(view: view)
-    }()
+    open lazy var loadingPresenter: LoadingPresenter = { LoadingPresenter(view: view) }()
     
     open override func viewDidLoad() {
         super.viewDidLoad()

@@ -44,8 +44,9 @@ open class LoadingView : UIView {
     }
     
     open func present(in view: UIView, animated: Bool) {
+        if superview == view { return }
+        
         progress = 0
-        opaqueStyle = false
         view.attach(self)
         
         if animated {
@@ -59,6 +60,8 @@ open class LoadingView : UIView {
     }
     
     open func hide(_ animated: Bool) {
+        if superview == nil { return }
+        
         if animated {
             UIView.animate(withDuration: 0.2, animations: {
                 self.alpha = 0

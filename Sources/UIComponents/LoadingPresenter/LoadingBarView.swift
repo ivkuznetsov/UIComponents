@@ -68,6 +68,8 @@ open class LoadingBarView: UIView {
     }
     
     open func present(in view: UIView, animated: Bool) {
+        if superview == view { return }
+        
         progress = 0
         
         frame = CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 3)
@@ -94,6 +96,8 @@ open class LoadingBarView: UIView {
     }
     
     open func hide(_ animated: Bool) {
+        if superview == nil { return }
+        
         if animated {
             UIView.animate(withDuration: 0.2, animations: {
                 self.alpha = 0

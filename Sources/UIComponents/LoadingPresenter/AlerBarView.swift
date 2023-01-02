@@ -10,6 +10,8 @@ open class AlertBarView: UIView {
     open var dismissTime: TimeInterval = 5
     
     open func present(in view: UIView, message: String) {
+        if superview == view && message == textLabel.text { return }
+        
         translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(self)
         view.leftAnchor.constraint(equalTo: leftAnchor).isActive = true

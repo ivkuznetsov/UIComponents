@@ -18,6 +18,8 @@ open class FailedView: UIView {
     }
     
     open func present(in view: UIView, text: String, retry: (()->())?) {
+        if superview == view { return }
+        
         frame = view.bounds
         textLabel.text = text
         self.retry = retry
