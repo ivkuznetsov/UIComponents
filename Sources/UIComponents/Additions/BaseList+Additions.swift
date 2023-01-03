@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CommonUtils
+import SharedUIComponents
 
 public extension BaseList {
     
