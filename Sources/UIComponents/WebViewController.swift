@@ -76,7 +76,7 @@ open class WebViewController: BaseController, WKNavigationDelegate {
     
     open func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         if firstLoad {
-            failView = FailedView.loadFromNib()
+            failView = FailedView.loadFromNib(bundle: Bundle.module)
             failView?.present(in: view, text: error.localizedDescription, retry: { [weak self] in
                 self?.webView.reload()
             })
