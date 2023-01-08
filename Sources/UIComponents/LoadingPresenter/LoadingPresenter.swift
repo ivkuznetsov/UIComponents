@@ -74,16 +74,16 @@ public class LoadingPresenter {
                 loadingView.opaqueStyle = value.presentation == .opaque
                 loadingView.performLazyLoading(showBackground: value.presentation == .opaque)
                 
-               // progress = value.progress?.$absoluteValue.sink { [weak loadingView] in
-               //     loadingView?.progress = $0
-               // }
+                progress = value.$progress.sink { [weak loadingView] in
+                    loadingView?.progress = $0
+                }
             } else {
                 loadingView.hide(true)
                 loadingBarView.present(in: view, animated: true)
                 
-               // nonBlockingProgress = value.progress?.$absoluteValue.sink { [weak loadingBarView] in
-               //     loadingBarView?.progress = $0
-               // }
+                nonBlockingProgress = value.$progress.sink { [weak loadingBarView] in
+                    loadingBarView?.progress = $0
+                }
             }
         } else {
             loadingBarView.hide(true)

@@ -16,7 +16,8 @@ open class LoadingView : UIView {
     
     open func performLazyLoading(showBackground: Bool) {
         let color = backgroundColor
-        indicator.isHidden = true
+        indicator.alpha = 0
+        progressIndicator?.alpha = 0
         
         if !showBackground {
             backgroundColor = .clear
@@ -29,9 +30,8 @@ open class LoadingView : UIView {
                 wSelf.backgroundColor = color
             }
             wSelf.addFadeTransition()
-            if wSelf.progressIndicator?.isHidden != false {
-                wSelf.indicator.isHidden = false
-            }
+            wSelf.indicator.alpha = 1
+            wSelf.progressIndicator?.alpha = 1
         }
     }
     
