@@ -15,16 +15,11 @@ public extension BaseList {
     }
 }
 
-public extension PagingCollection {
+public extension ListTracker {
     
     convenience init(hasRefreshControl: Bool = true) {
-        self.init(Collection(), hasRefreshControl: hasRefreshControl)
-    }
-}
-
-public extension PagingTable {
-    
-    convenience init(hasRefreshControl: Bool = true) {
-        self.init(Table(), hasRefreshControl: hasRefreshControl)
+        self.init(list: .init(emptyStateView: NoObjectsView.loadFromNib(bundle: Bundle.module)),
+                  paging: Paging(),
+                  hasRefreshControl: hasRefreshControl)
     }
 }

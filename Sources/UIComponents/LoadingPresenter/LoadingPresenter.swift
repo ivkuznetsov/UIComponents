@@ -6,7 +6,8 @@ import UIKit
 import SharedUIComponents
 import CommonUtils
 
-public class LoadingPresenter: StaticSetupObject {
+@MainActor
+public class LoadingPresenter {
     
     public let helper = LoadingHelper()
     public let view: UIView
@@ -31,7 +32,6 @@ public class LoadingPresenter: StaticSetupObject {
     
     public init(view: UIView) {
         self.view = view
-        super.init()
         
         helper.$processing.sink { [weak self] in
             let values = Array($0.values)
@@ -61,7 +61,7 @@ public class LoadingPresenter: StaticSetupObject {
     private var progress: AnyObject?
     private var nonBlockingProgress: AnyObject?
     
-    private func reloadView(processing: [(progress: WorkProgress?, presentation: LoadingHelper.Presentation)]) {
+    private func reloadView(processing: [LoadingHelper.TaskWrapper]) {
         let value = processing.first { $0.presentation == .opaque } ??
                     processing.first { $0.presentation == .translucent } ??
                     processing.first { $0.presentation == .nonblocking }
@@ -74,16 +74,16 @@ public class LoadingPresenter: StaticSetupObject {
                 loadingView.opaqueStyle = value.presentation == .opaque
                 loadingView.performLazyLoading(showBackground: value.presentation == .opaque)
                 
-                progress = value.progress?.$absoluteValue.sink { [weak loadingView] in
-                    loadingView?.progress = $0
-                }
+               // progress = value.progress?.$absoluteValue.sink { [weak loadingView] in
+               //     loadingView?.progress = $0
+               // }
             } else {
                 loadingView.hide(true)
                 loadingBarView.present(in: view, animated: true)
                 
-                nonBlockingProgress = value.progress?.$absoluteValue.sink { [weak loadingBarView] in
-                    loadingBarView?.progress = $0
-                }
+               // nonBlockingProgress = value.progress?.$absoluteValue.sink { [weak loadingBarView] in
+               //     loadingBarView?.progress = $0
+               // }
             }
         } else {
             loadingBarView.hide(true)
