@@ -8,18 +8,20 @@
 import Foundation
 import SharedUIComponents
 
-public extension BaseList {
+public extension ListContainer {
     
-    convenience init(listView: View? = nil) {
-        self.init(listView: listView, emptyStateView: NoObjectsView.loadFromNib(bundle: Bundle.module))
+    static func make(emptyView: ((NoObjectsView)->())? = nil) -> Self {
+        let list = self.init()
+        let view = NoObjectsView.loadFromNib(bundle: Bundle.module)
+        emptyView?(view)
+        list.emptyState.attach(view)
+        return list
     }
 }
 
 public extension ListTracker {
     
-    convenience init(hasRefreshControl: Bool = true) {
-        self.init(list: .init(emptyStateView: NoObjectsView.loadFromNib(bundle: Bundle.module)),
-                  paging: Paging(),
-                  hasRefreshControl: hasRefreshControl)
+    static func make(refreshControl: Bool = true, emptyView: ((NoObjectsView)->())? = nil) -> Self {
+        self.init(list: List.make(emptyView: emptyView), hasRefreshControl: refreshControl)
     }
 }
